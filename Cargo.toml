@@ -1,0 +1,7 @@
+[package]
+name = "r-graphs"
+version = "0.0.1"
+authors = ["Julien Férard <www.github/jferard>"]
+
+[dependencies]
+# none
