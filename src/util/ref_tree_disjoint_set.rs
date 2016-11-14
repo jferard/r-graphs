@@ -1,22 +1,22 @@
-/*******************************************************************************
- * R-Graphs - A simple graph library for Rust
- * Copyright (C) 2016 J. Férard <https://github.com/jferard>
- *
- * This file is part of R-Graphs.
- *
- * R-Graphs is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * R-Graphs is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+/// *****************************************************************************
+/// R-Graphs - A simple graph library for Rust
+/// Copyright (C) 2016 J. Férard <https://github.com/jferard>
+///
+/// This file is part of R-Graphs.
+///
+/// R-Graphs is free software: you can redistribute it and/or modify
+/// it under the terms of the GNU General Public License as published by
+/// the Free Software Foundation, either version 3 of the License, or
+/// (at your option) any later version.
+///
+/// R-Graphs is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/// ***************************************************************************
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::hash::Hash;
@@ -208,41 +208,41 @@ impl<'a, T: Clone + Eq + Hash + Debug> Debug for RefTreeDisjointSet<'a, T> {
 
 #[cfg(test)]
 mod test {
-	use super::*;
-	use util::disjoint_set::RefDisjointSet;
+    use super::*;
+    use util::disjoint_set::RefDisjointSet;
 
-	#[test]
-	fn test_ref_tree_disjoint_set() {
-		let v = vec!["a", "b", "c", "d", "e", "f", "g", "h", "i"];
-		let mut x = RefTreeDisjointSet::make_sets(&v);
-		for e in &v {
-			assert!(x.parent[e] == e);
-		}
-		let (aa, bb) = (&v[0], &v[1]);
-		x.union(aa, bb);
-		assert!(x.parent[aa] == x.parent[bb]);
-		assert!(["a", "b"].contains(&&x.parent[bb]));
-		let iterator = v.iter().filter(|j| !["a", "b"].contains(j)).cloned();
-		for e in iterator {
-			assert!(x.parent[&e] == &e);
-		}
-		x.union(&v[5], &v[6]);
-		assert!(x.parent[&"a"] == x.parent[&v[1]]);
-		assert!(["a", "b"].contains(&&x.parent[&v[0]]));
-		assert!(x.parent[&"f"] == x.parent[&v[6]]);
-		assert!(["f", "g"].contains(&&x.parent[&v[5]]));
-		let mut iterator2 = v.iter().filter(|j| !["a", "b", "f", "g"].contains(j)).cloned();
-		for e in iterator2.by_ref() {
-			assert!(x.parent[&e] == &e);
-		}
-		x.union(&v[0], &v[5]);
-		assert!(x.find(&v[0]).cloned() == x.find(&v[5]).cloned());
-		assert!(x.parent[&v[0]] == x.parent[&v[1]]);
-		assert!(x.parent[&v[1]] == x.parent[&v[5]]);
-		assert!(x.parent[&v[5]] == x.parent[&v[6]]);
-		assert!(["a", "b", "f", "g"].contains(&&x.parent[&v[0]]));
-		for e in iterator2 {
-			assert!(x.parent[&e] == &e);
-		}
-	}
+    #[test]
+    fn test_ref_tree_disjoint_set() {
+        let v = vec!["a", "b", "c", "d", "e", "f", "g", "h", "i"];
+        let mut x = RefTreeDisjointSet::make_sets(&v);
+        for e in &v {
+            assert!(x.parent[e] == e);
+        }
+        let (aa, bb) = (&v[0], &v[1]);
+        x.union(aa, bb);
+        assert!(x.parent[aa] == x.parent[bb]);
+        assert!(["a", "b"].contains(&&x.parent[bb]));
+        let iterator = v.iter().filter(|j| !["a", "b"].contains(j)).cloned();
+        for e in iterator {
+            assert!(x.parent[&e] == &e);
+        }
+        x.union(&v[5], &v[6]);
+        assert!(x.parent[&"a"] == x.parent[&v[1]]);
+        assert!(["a", "b"].contains(&&x.parent[&v[0]]));
+        assert!(x.parent[&"f"] == x.parent[&v[6]]);
+        assert!(["f", "g"].contains(&&x.parent[&v[5]]));
+        let mut iterator2 = v.iter().filter(|j| !["a", "b", "f", "g"].contains(j)).cloned();
+        for e in iterator2.by_ref() {
+            assert!(x.parent[&e] == &e);
+        }
+        x.union(&v[0], &v[5]);
+        assert!(x.find(&v[0]).cloned() == x.find(&v[5]).cloned());
+        assert!(x.parent[&v[0]] == x.parent[&v[1]]);
+        assert!(x.parent[&v[1]] == x.parent[&v[5]]);
+        assert!(x.parent[&v[5]] == x.parent[&v[6]]);
+        assert!(["a", "b", "f", "g"].contains(&&x.parent[&v[0]]));
+        for e in iterator2 {
+            assert!(x.parent[&e] == &e);
+        }
+    }
 }

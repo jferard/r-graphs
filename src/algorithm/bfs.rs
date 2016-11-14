@@ -1,22 +1,22 @@
-/*******************************************************************************
- * R-Graphs - A simple graph library for Rust
- * Copyright (C) 2016 J. Férard <https://github.com/jferard>
- *
- * This file is part of R-Graphs.
- *
- * R-Graphs is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * R-Graphs is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+/// *****************************************************************************
+/// R-Graphs - A simple graph library for Rust
+/// Copyright (C) 2016 J. Férard <https://github.com/jferard>
+///
+/// This file is part of R-Graphs.
+///
+/// R-Graphs is free software: you can redistribute it and/or modify
+/// it under the terms of the GNU General Public License as published by
+/// the Free Software Foundation, either version 3 of the License, or
+/// (at your option) any later version.
+///
+/// R-Graphs is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/// ***************************************************************************
 use std::collections::VecDeque;
 use graph::Graph;
 use algorithm::visitor::Visitor;
@@ -44,7 +44,7 @@ impl<'b, G, V> BFSBrowser<'b, G, V>
             queue: VecDeque::new(),
         }
     }
-    
+
     pub fn browse(&mut self) {
         for u in self.g.vertices_iter() {
             if !self.visited.is_visited(u) {
@@ -64,7 +64,7 @@ impl<'b, G, V> BFSBrowser<'b, G, V>
                 Some(m) => {
                     for (&u, _) in m {
                         if !self.visited.is_visited(u) {
-	                        self.visited.set_visited(u);
+                            self.visited.set_visited(u);
                             self.queue.push_back((u, Some(cur)));
                         }
                     }
@@ -77,37 +77,37 @@ impl<'b, G, V> BFSBrowser<'b, G, V>
 
 #[cfg(test)]
 mod test {
-	use super::*;
-	use util::GraphvizHelper;
-	use util::GraphvizHelperImpl;
-	use graph::DirectedSimpleGraphImpl;
-	use graph::UndirectedSimpleGraphImpl;
-	use graph::examples::graph2;
-	
-	#[test]
-	fn test_bfs() {
+    use super::*;
+    use util::GraphvizHelper;
+    use util::GraphvizHelperImpl;
+    use graph::DirectedSimpleGraphImpl;
+    use graph::UndirectedSimpleGraphImpl;
+    use graph::examples::graph2;
 
-		let g = graph2::<UndirectedSimpleGraphImpl>();
-		{
-			let mut gh: GraphvizHelperImpl<UndirectedSimpleGraphImpl> = GraphvizHelper::new(&g);
-			{
-				let mut b = BFSBrowser::new(&g, &mut gh);
-				b.browse();
-			}
-			gh.output("gv_output/ubfs.dot");
-		}
-	}
+    #[test]
+    fn test_bfs() {
 
-	#[test]
-	fn test_bfs2() {
-		let g = graph2::<DirectedSimpleGraphImpl>();
-		{
-			let mut gh: GraphvizHelperImpl<DirectedSimpleGraphImpl> = GraphvizHelper::new(&g);
-			{
-				let mut b = BFSBrowser::new(&g, &mut gh);
-				b.browse();
-			}
-			gh.output("gv_output/dbfs.dot");
-		}
-	}
+        let g = graph2::<UndirectedSimpleGraphImpl>();
+        {
+            let mut gh: GraphvizHelperImpl<UndirectedSimpleGraphImpl> = GraphvizHelper::new(&g);
+            {
+                let mut b = BFSBrowser::new(&g, &mut gh);
+                b.browse();
+            }
+            gh.output("gv_output/ubfs.dot");
+        }
+    }
+
+    #[test]
+    fn test_bfs2() {
+        let g = graph2::<DirectedSimpleGraphImpl>();
+        {
+            let mut gh: GraphvizHelperImpl<DirectedSimpleGraphImpl> = GraphvizHelper::new(&g);
+            {
+                let mut b = BFSBrowser::new(&g, &mut gh);
+                b.browse();
+            }
+            gh.output("gv_output/dbfs.dot");
+        }
+    }
 }

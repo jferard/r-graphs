@@ -1,22 +1,22 @@
-/*******************************************************************************
- * R-Graphs - A simple graph library for Rust
- * Copyright (C) 2016 J. Férard <https://github.com/jferard>
- *
- * This file is part of R-Graphs.
- *
- * R-Graphs is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * R-Graphs is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+/// *****************************************************************************
+/// R-Graphs - A simple graph library for Rust
+/// Copyright (C) 2016 J. Férard <https://github.com/jferard>
+///
+/// This file is part of R-Graphs.
+///
+/// R-Graphs is free software: you can redistribute it and/or modify
+/// it under the terms of the GNU General Public License as published by
+/// the Free Software Foundation, either version 3 of the License, or
+/// (at your option) any later version.
+///
+/// R-Graphs is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/// ***************************************************************************
 use std::collections::VecDeque;
 use std::iter::FilterMap;
 use std::iter::Enumerate;
@@ -77,7 +77,7 @@ impl DenseVecIndices {
         return true;
     }
 
-	/** heap cost : use into_iter */
+    /** heap cost : use into_iter */
     pub fn used_indices_iter<'a>(&'a self) -> Box<Iterator<Item = usize> + 'a> {
         Box::new(self.is_free.iter().enumerate().filter_map(|(e, &free)| match free {
             true => None,
@@ -123,68 +123,68 @@ impl<'a> IntoIterator for &'a DenseVecIndices {
 
 #[cfg(test)]
 mod test {
-	use super::*;
-	
-	#[test]
-	fn test_dense_vec_indices1() {
-		let mut set = DenseVecIndices::new();
-		assert!(set.size() == 0);
-		assert!(set.index_is_free(0));
-		assert!(set.index_consume() == 0);
-		assert!(set.size() == 1);
-		assert!(set.index_is_used(0));
-		assert!(set.index_is_free(1));
-	}
+    use super::*;
 
-	#[test]
-	fn test_dense_vec_indices2() {
-		let mut set = DenseVecIndices::new();
-		assert!(set.index_consume() == 0);
-		assert!(set.index_consume() == 1);
-		assert!(set.index_consume() == 2);
-		assert!(set.index_consume() == 3);
-		assert!(set.size() == 4);
-	}
+    #[test]
+    fn test_dense_vec_indices1() {
+        let mut set = DenseVecIndices::new();
+        assert!(set.size() == 0);
+        assert!(set.index_is_free(0));
+        assert!(set.index_consume() == 0);
+        assert!(set.size() == 1);
+        assert!(set.index_is_used(0));
+        assert!(set.index_is_free(1));
+    }
 
-	#[test]
-	fn test_dense_vec_indices3() {
-		let mut set = DenseVecIndices::new();
-		assert!(set.index_consume() == 0);
-		assert!(set.index_consume() == 1);
-		assert!(set.index_consume() == 2);
-		assert!(set.index_consume() == 3);
-		set.free_index(2);
-		assert!(set.size() == 3);
-		let v: Vec<usize> = set.used_indices_iter().collect();
-		assert!(v == vec![0, 1, 3]);
-	}
+    #[test]
+    fn test_dense_vec_indices2() {
+        let mut set = DenseVecIndices::new();
+        assert!(set.index_consume() == 0);
+        assert!(set.index_consume() == 1);
+        assert!(set.index_consume() == 2);
+        assert!(set.index_consume() == 3);
+        assert!(set.size() == 4);
+    }
 
-	#[test]
-	fn test_dense_vec_indices4() {
-		let mut set = DenseVecIndices::new();
-		assert!(set.index_consume() == 0);
-		assert!(set.index_consume() == 1);
-		assert!(set.index_consume() == 2);
-		assert!(set.index_consume() == 3);
-		set.free_index(2);
-		assert!(set.index_consume() == 2);
-		assert!(set.size() == 4);
-		let v: Vec<usize> = set.used_indices_iter().collect();
-		assert!(v == vec![0, 1, 2, 3]);
-	}
+    #[test]
+    fn test_dense_vec_indices3() {
+        let mut set = DenseVecIndices::new();
+        assert!(set.index_consume() == 0);
+        assert!(set.index_consume() == 1);
+        assert!(set.index_consume() == 2);
+        assert!(set.index_consume() == 3);
+        set.free_index(2);
+        assert!(set.size() == 3);
+        let v: Vec<usize> = set.used_indices_iter().collect();
+        assert!(v == vec![0, 1, 3]);
+    }
 
-	#[test]
-	fn test_dense_vec_indices5into_iter() {
-		let mut set = DenseVecIndices::new();
-		assert!(set.index_consume() == 0);
-		assert!(set.index_consume() == 1);
-		assert!(set.index_consume() == 2);
-		assert!(set.index_consume() == 3);
-		set.free_index(2);
-		assert!(set.index_consume() == 2);
-		assert!(set.index_consume() == 4);
-		assert!(set.size() == 5);
-		let v: Vec<usize> = set.into_iter().collect();
-		assert!(v == vec![0, 1, 2, 3, 4]);
-	}
+    #[test]
+    fn test_dense_vec_indices4() {
+        let mut set = DenseVecIndices::new();
+        assert!(set.index_consume() == 0);
+        assert!(set.index_consume() == 1);
+        assert!(set.index_consume() == 2);
+        assert!(set.index_consume() == 3);
+        set.free_index(2);
+        assert!(set.index_consume() == 2);
+        assert!(set.size() == 4);
+        let v: Vec<usize> = set.used_indices_iter().collect();
+        assert!(v == vec![0, 1, 2, 3]);
+    }
+
+    #[test]
+    fn test_dense_vec_indices5into_iter() {
+        let mut set = DenseVecIndices::new();
+        assert!(set.index_consume() == 0);
+        assert!(set.index_consume() == 1);
+        assert!(set.index_consume() == 2);
+        assert!(set.index_consume() == 3);
+        set.free_index(2);
+        assert!(set.index_consume() == 2);
+        assert!(set.index_consume() == 4);
+        assert!(set.size() == 5);
+        let v: Vec<usize> = set.into_iter().collect();
+        assert!(v == vec![0, 1, 2, 3, 4]);
+    }
 }

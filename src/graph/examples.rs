@@ -1,27 +1,29 @@
-/*******************************************************************************
- * R-Graphs - A simple graph library for Rust
- * Copyright (C) 2016 J. Férard <https://github.com/jferard>
- *
- * This file is part of R-Graphs.
- *
- * R-Graphs is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * R-Graphs is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+/// *****************************************************************************
+/// R-Graphs - A simple graph library for Rust
+/// Copyright (C) 2016 J. Férard <https://github.com/jferard>
+///
+/// This file is part of R-Graphs.
+///
+/// R-Graphs is free software: you can redistribute it and/or modify
+/// it under the terms of the GNU General Public License as published by
+/// the Free Software Foundation, either version 3 of the License, or
+/// (at your option) any later version.
+///
+/// R-Graphs is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+/// GNU General Public License for more details.
+///
+/// You should have received a copy of the GNU General Public License
+/// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/// ***************************************************************************
 use graph::basic_graph::BasicGraph;
 use graph::graph::Graph;
 
-pub fn graph1<'a, T>() -> T where T : Graph<'a> {
-    let mut g:T = Graph::new(BasicGraph::new());
+pub fn graph1<'a, T>() -> T
+    where T: Graph<'a>
+{
+    let mut g: T = Graph::new(BasicGraph::new());
     for _ in 0..13 {
         g.add_vertex();
     }
@@ -50,8 +52,10 @@ pub fn graph1<'a, T>() -> T where T : Graph<'a> {
     g
 }
 
-pub fn graph2<'a, T>() -> T where T : Graph<'a> {
-    let mut g:T = Graph::new(BasicGraph::new());
+pub fn graph2<'a, T>() -> T
+    where T: Graph<'a>
+{
+    let mut g: T = Graph::new(BasicGraph::new());
     for _ in 0..21 {
         g.add_vertex();
     }
@@ -76,7 +80,7 @@ pub fn graph2<'a, T>() -> T where T : Graph<'a> {
 
     g.add_edge(11, 12);
     g.add_edge(13, 11);
-    
+
     g.add_edge(1, 14);
     g.add_edge(14, 15);
     g.add_edge(14, 16);
@@ -89,4 +93,3 @@ pub fn graph2<'a, T>() -> T where T : Graph<'a> {
     g.add_edge(15, 4);
     g
 }
-
