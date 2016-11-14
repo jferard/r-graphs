@@ -35,23 +35,10 @@ impl<'a> GraphvizHelperImpl<'a, UndirectedSimpleGraphImpl> {
                 _ => {}
             }
         }
-        if n > 0 {
-            if n > 1 {
-                for m in 0..n - 1 {
-                    for v in &self.marked_vertices[m] {
-                        s.push_str(&format!("\t\"{0}_{1}\" [fontcolor=white, fillcolor=black, \
-                                             style=filled]\n",
-                                            n,
-                                            v));
-                    }
-                }
-            }
-            for v in &self.marked_vertices[n - 1] {
-                s.push_str(&format!("\t\"{0}_{1}\" [fillcolor=grey, style=filled]\n", n, v));
-            }
-        }
-        s.push_str("}\n");
-        s
+ 		// add color : grey for last marked, black for others
+ 		self.add_color_to_subgraph(&mut s, n);
+         s.push_str("}\n");
+       s
     }
 }
 

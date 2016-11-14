@@ -21,28 +21,54 @@ use graph::dense_ref_vec::DenseRefVec;
 use graph::graphs::Graph;
 
 pub struct DecoratedGraph<G: Graph, V, E> {
-	graph : G,
-	vertex_decorations : DenseRefVec<V>,
-	edge_decorations : DenseRefVec<E>,
+    graph: G,
+    vertex_decorations: DenseRefVec<V>,
+    edge_decorations: DenseRefVec<E>,
 }
 
-impl <G:Graph, V : 'static+PartialEq + Clone, E : 'static+PartialEq + Clone> DecoratedGraph<G, V, E> {
-	fn new(graph : G) -> DecoratedGraph<G, V, E> {
-		DecoratedGraph { 
-			graph : graph,
-			vertex_decorations : DenseRefVec::new(),
-			edge_decorations : DenseRefVec::new(),
-		}
-	}
-	
-	fn add_vertex(&mut self, vertex_value : V) -> usize {
-		let v = self.graph.add_vertex();
-		self.vertex_decorations.add_value_at_place(v, vertex_value);
-		v
-	}
-	
-	fn add_edge(&mut self, v1 : usize, v2 : usize, edge_value : E) {
-		let e = self.graph.add_edge(v1, v2);
-		self.edge_decorations.add_value_at_place(e, edge_value);
-	}
+impl<G: Graph, V, E> DecoratedGraph<G, V, E>
+    where V: 'static + PartialEq + Clone,
+          E: 'static + PartialEq + Clone
+{
+    fn new(graph: G) -> DecoratedGraph<G, V, E> {
+        DecoratedGraph {
+            graph: graph,
+            vertex_decorations: DenseRefVec::new(),
+            edge_decorations: DenseRefVec::new(),
+        }
+    }
+
+    fn add_vertex(&mut self, vertex_value: V) -> usize {
+        let v = self.graph.add_vertex();
+        self.vertex_decorations.add_value_at_place(v, vertex_value);
+        v
+    }
+
+    fn add_edge(&mut self, v1: usize, v2: usize, edge_value: E) {
+        let e = self.graph.add_edge(v1, v2);
+        self.edge_decorations.add_value_at_place(e, edge_value);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use graph::Graph;
+    use graph::basic_graph::BasicGraph;
+    use util::GraphvizHelper;
+    use util::GraphvizHelperImpl;
+    use graph::examples::graph1;
+
+    #[test]
+    fn testGV() {
+        let g: UndirectedSimpleGraphImpl = graph1();
+        let dg = DecoratedGraph::new(&g);
+        /*
+        let mut gh = GraphvizHelperImpl::new(&g);
+        gh.output("gv_output/graph1.dot");
+        gh.mark(vec![1, 2]);
+        gh.mark(vec![5, 6]);
+        gh.output("gv_output/graph2.dot");
+        */
+    }
 }
