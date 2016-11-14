@@ -3,5 +3,6 @@
 /gv_output/*.dot
 /old
 .project
+.settings
 
 
