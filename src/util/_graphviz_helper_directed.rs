@@ -21,14 +21,14 @@ use graph::DirectedSimpleGraphImpl;
 
 impl<'a> GraphvizHelperImpl<'a, DirectedSimpleGraphImpl> {
     fn build_subgraph(&self, subgraph_index: usize) -> String {
-        let mut s = format!("subgraph cluster{0} {{\nlabel=\"Step {0}\"\n", n);
+        let mut s = format!("subgraph cluster{0} {{\nlabel=\"Step {0}\"\n", subgraph_index);
         for from in self.g.vertices_iter() {
-            s.push_str(&format!("\t\"{0}_{1}\" [label={1}]\n", n, from));
+            s.push_str(&format!("\t\"{0}_{1}\" [label={1}]\n", subgraph_index, from));
             match self.g
                 .adjacent_vertices_iter(from) {
                 Some(m) => {
                     for to in m.map(|(&u, _)| u) {
-                        s.push_str(&format!("\t\"{0}_{1}\" -> \"{0}_{2}\"\n", n, from, to));
+                        s.push_str(&format!("\t\"{0}_{1}\" -> \"{0}_{2}\"\n", subgraph_index, from, to));
 
                     }
                 }
@@ -36,7 +36,7 @@ impl<'a> GraphvizHelperImpl<'a, DirectedSimpleGraphImpl> {
             }
         }
         // add color : grey for last marked, black for others
-        self.add_color_to_subgraph(&mut s, n);
+        self.add_color_to_subgraph(&mut s, subgraph_index);
         s.push_str("}\n");
         s
     }

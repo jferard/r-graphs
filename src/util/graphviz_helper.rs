@@ -20,13 +20,25 @@
 use graph::graph::Graph;
 use std::io::Write;
 use std::fs::File;
+use std::fs;
+use std::path::Path;
 
 pub trait GraphvizHelper<'a, G>
     where G: 'a
 {
     fn new(g: &'a G) -> Self;
+
     fn output(&self, filename: &str) {
         let s = self.build_string();
+
+        let path = Path::new(filename);
+        match path.parent() {
+            None => {},
+            Some(parent_path) => {
+                fs::create_dir_all(parent_path.to_str().expect("expect an utf-8 path"))
+                    .expect("failed to create dir") }
+        }
+
         File::create(filename)
             .expect(&("Error opening file: ".to_string() + filename))
             .write_all(s.as_bytes()) // utf-8 by default

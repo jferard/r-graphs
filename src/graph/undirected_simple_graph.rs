@@ -100,7 +100,7 @@ mod test {
     use graph::examples::graph1;
 
     #[test]
-    fn testGV() {
+    fn test_gv() {
         let g: UndirectedSimpleGraphImpl = graph1();
         let mut gh = GraphvizHelperImpl::new(&g);
         gh.output("gv_output/graph1.dot");

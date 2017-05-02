@@ -1,8 +1,9 @@
-/Cargo.lock
-/target
-/gv_output/*.dot
-/old
+Cargo.lock
+target
+old
 .project
 .settings
+.idea
+gv_output
 
 
