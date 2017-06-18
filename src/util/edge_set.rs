@@ -22,15 +22,13 @@ use std::collections::hash_map::Iter;
 use std::cmp::Eq;
 use std::hash::Hash;
 
-/**
-from -> (to -> edge or set of edges)
-from + to -> edge or set of edges
-*/
+/// An EdgeSet is a set of edges.
+/// One may add or remove an edge, and iterate on edges in various ways.
 pub trait EdgeSet<V, E>
     where V: Eq + Hash,
           E: Eq + Hash
 {
-    type S; // on pourrat avoir un autre itérateur.
+    type S; // we might use another iterator
 
     fn new() -> Self;
     fn add_edge(&mut self, V, V, E) -> bool;

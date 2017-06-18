@@ -22,12 +22,14 @@ use std::iter::FilterMap;
 use std::iter::Enumerate;
 use std::slice::Iter;
 
+/// DenseVecIndices represents a subset of natural numbers.
+/// One uses `index_consume` to get the next index. This index is either an index that has been
+/// freed (see `free_index`) or an new index.
 pub struct DenseVecIndices {
     is_free: Vec<bool>,
     free_elements: VecDeque<usize>,
 }
 
-/** a simple vec with some holes allowed, when removing an index */
 impl DenseVecIndices {
     pub fn new() -> DenseVecIndices {
         DenseVecIndices {
@@ -50,6 +52,7 @@ impl DenseVecIndices {
         }
     }
 
+    /// Return a new free index.
     pub fn index_consume(&mut self) -> usize {
         match self.free_elements.pop_front() {
             None => {
@@ -63,6 +66,7 @@ impl DenseVecIndices {
         }
     }
 
+    /// Free an index.
     pub fn free_index(&mut self, e: usize) -> bool {
         if self.index_is_free(e) {
             return false;
@@ -77,7 +81,8 @@ impl DenseVecIndices {
         return true;
     }
 
-    /** heap cost : use into_iter */
+    /// Return an iterator on all non free indices.
+    /// heap cost : use into_iter
     pub fn used_indices_iter<'a>(&'a self) -> Box<Iterator<Item = usize> + 'a> {
         Box::new(self.is_free.iter().enumerate().filter_map(|(e, &free)| match free {
             true => None,
@@ -106,6 +111,7 @@ impl DenseVecIndices {
     }
 }
 
+/// Return an iterator on the used indices.
 impl<'a> IntoIterator for &'a DenseVecIndices {
     type Item = usize;
     type IntoIter = FilterMap<Enumerate<Iter<'a, bool>>, fn((usize, &'a bool)) -> Option<usize>>;

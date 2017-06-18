@@ -24,6 +24,7 @@ use std::collections::hash_map::Iter;
 use std::cmp::Eq;
 use std::hash::Hash;
 
+/// An EdgeSet that accepts multiple edges between two vertices.
 pub struct MultipleEdgeSet<V, E> {
     edges_by_to_by_from: HashMap<V, HashMap<V, HashSet<E>>>,
 }
@@ -38,12 +39,14 @@ impl<V, E> EdgeSet<V, E> for MultipleEdgeSet<V, E>
         MultipleEdgeSet { edges_by_to_by_from: HashMap::new() }
     }
 
+    /// Add e to the set of vertices between u and v
     fn add_edge(&mut self, u: V, v: V, e: E) -> bool {
         let edges_by_to = self.edges_by_to_by_from.entry(u).or_insert(HashMap::new());
         let edges = edges_by_to.entry(v).or_insert(HashSet::new());
         edges.insert(e)
     }
 
+    /// Remove the edge e from u to v, and return true if the edge was removed
     fn remove_edge(&mut self, u: &V, v: &V, e: &E) -> bool {
         let mut len;
         let ret;
@@ -58,6 +61,7 @@ impl<V, E> EdgeSet<V, E> for MultipleEdgeSet<V, E>
                         return false;
                     }
                 };
+                // lets clean edges_by_to : no edge goes from u to v
                 if ret && len == 0 {
                     edges_by_to.remove(v);
                     len = edges_by_to.len();
@@ -67,6 +71,7 @@ impl<V, E> EdgeSet<V, E> for MultipleEdgeSet<V, E>
                 return false;
             }
         }
+        // lets clean edges_by_to_by_from : no edge starts from u anymore
         if ret && len == 0 {
             self.edges_by_to_by_from.remove(u);
         }

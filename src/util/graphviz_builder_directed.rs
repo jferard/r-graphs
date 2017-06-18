@@ -18,48 +18,58 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 use graph::DirectedSimpleGraphImpl;
+use graph::Graph;
+use util::graphviz_builder::GraphvizBuilder;
+use util::graphviz_builder::Painter;
 
-impl<'a> GraphvizHelperImpl<'a, DirectedSimpleGraphImpl> {
+pub struct GraphvizBuilderDirectedImpl<'a>
+{
+    marked_vertices: &'a Vec<Vec<usize>>,
+    graph: &'a DirectedSimpleGraphImpl,
+    painter: Painter
+}
+
+impl <'a> GraphvizBuilderDirectedImpl<'a> {
     fn build_subgraph(&self, subgraph_index: usize) -> String {
         let mut s = format!("subgraph cluster{0} {{\nlabel=\"Step {0}\"\n", subgraph_index);
-        for from in self.g.vertices_iter() {
+        for from in self.graph.vertices_iter() {
             s.push_str(&format!("\t\"{0}_{1}\" [label={1}]\n", subgraph_index, from));
-            match self.g
-                .adjacent_vertices_iter(from) {
+            match self.graph.adjacent_vertices_iter(from) {
                 Some(m) => {
                     for to in m.map(|(&u, _)| u) {
                         s.push_str(&format!("\t\"{0}_{1}\" -> \"{0}_{2}\"\n", subgraph_index, from, to));
-
                     }
                 }
                 _ => {}
             }
         }
         // add color : grey for last marked, black for others
-        self.add_color_to_subgraph(&mut s, subgraph_index);
+        self.painter.add_color_to_subgraph(&mut s, subgraph_index, self.marked_vertices);
         s.push_str("}\n");
         s
     }
 }
 
-impl<'a> GraphvizHelper<'a, DirectedSimpleGraphImpl> for
-GraphvizHelperImpl<'a, DirectedSimpleGraphImpl> {
-    fn new(g: &'a DirectedSimpleGraphImpl) -> GraphvizHelperImpl<'a, DirectedSimpleGraphImpl> {
-        GraphvizHelperImpl { g : g, marked_vertices:Vec::new() }
-    }
+impl<'a> GraphvizBuilder<'a> for
+GraphvizBuilderDirectedImpl<'a> {
+    type G = DirectedSimpleGraphImpl;
 
-    fn mark(&mut self, vertices:Vec<usize>) {
-    	self.marked_vertices.push(vertices);
+    fn new(graph: &'a Self::G, marked_vertices: &'a Vec<Vec<usize>>) -> GraphvizBuilderDirectedImpl<'a> {
+        GraphvizBuilderDirectedImpl {
+            marked_vertices: marked_vertices,
+            graph: graph,
+            painter: Painter::new()
 
+        }
     }
 
     fn build_string(&self) -> String {
         let mut s = "digraph".to_string();
         s.push_str(" G {\n");
         let l = self.marked_vertices.len();
-	        for n in 0..l+1 {
-		        s.push_str(&self.build_subgraph(n));
-	        }
+        for n in 0..l + 1 {
+            s.push_str(&self.build_subgraph(n));
+        }
         s.push_str("}\n");
         s
     }

@@ -18,69 +18,41 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 use graph::graph::Graph;
-use std::io::Write;
-use std::fs::File;
-use std::fs;
-use std::path::Path;
 
-pub trait GraphvizHelper<'a, G>
-    where G: 'a
-{
-    fn new(g: &'a G) -> Self;
+/// A Builder for a graphviz graph.
+/// It builds a string from marked vertices and a given graph.
+pub trait GraphvizBuilder<'a> {
+    type G: Graph<'a>;
 
-    fn output(&self, filename: &str) {
-        let s = self.build_string();
-
-        let path = Path::new(filename);
-        match path.parent() {
-            None => {},
-            Some(parent_path) => {
-                fs::create_dir_all(parent_path.to_str().expect("expect an utf-8 path"))
-                    .expect("failed to create dir") }
-        }
-
-        File::create(filename)
-            .expect(&("Error opening file: ".to_string() + filename))
-            .write_all(s.as_bytes()) // utf-8 by default
-            .ok()
-            .expect("Writing graph to file failed");
-    }
+    fn new(graph: &'a Self::G, marked_vertices: &'a Vec<Vec<usize>>) -> Self;
 
     fn build_string(&self) -> String;
-
-    fn mark(&mut self, vertices: Vec<usize>);
 }
 
-pub struct GraphvizHelperImpl<'a, G>
-    where G: 'a // + Graph<'a>
-{
-    g: &'a G,
-    marked_vertices: Vec<Vec<usize>>,
+pub struct Painter{
 }
 
-impl<'a, G> GraphvizHelperImpl<'a, G>
-    where G: 'a
-{
+impl Painter {
+    pub fn new() -> Self {
+        Painter { }
+    }
+
     // add color : grey for last marked, black for others
-    fn add_color_to_subgraph<'b>(&self, s: &'b mut String, n: usize) {
+    pub fn add_color_to_subgraph<'a>(&self, s: &mut String, n: usize, marked_vertices: &'a Vec<Vec<usize>>) {
         if n > 0 {
             if n > 1 {
                 for m in 0..n - 1 {
-                    for v in &self.marked_vertices[m] {
+                    for v in &marked_vertices[m] {
                         s.push_str(&format!("\t\"{0}_{1}\" [fontcolor=white, fillcolor=black, \
-                                             style=filled]\n",
+                                                 style=filled]\n",
                                             n,
                                             v));
                     }
                 }
             }
-            for v in &self.marked_vertices[n - 1] {
+            for v in &marked_vertices[n - 1] {
                 s.push_str(&format!("\t\"{0}_{1}\" [fillcolor=grey, style=filled]\n", n, v));
             }
         }
     }
 }
-
-
-include!("_graphviz_helper_directed.rs");
-include!("_graphviz_helper_undirected.rs");

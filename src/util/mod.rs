@@ -17,15 +17,28 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
+
+// disjoint set https://en.wikipedia.org/wiki/Disjoint-set_data_structure
 pub mod disjoint_set;
 pub mod ref_tree_disjoint_set;
 pub mod usize_tree_disjoint_set;
-pub mod dense_vec_indices;
-pub mod dense_vec;
-pub mod graphviz_helper;
+
+pub mod graphviz_writer;
+pub mod graphviz_builder;
+pub mod graphviz_builder_directed;
+pub mod graphviz_builder_undirected;
+
+// the sets of edges between couples of vertices
 pub mod edge_set;
 pub mod simple_edge_set;
 pub mod multiple_edge_set;
 
-pub use self::graphviz_helper::GraphvizHelper;
-pub use self::graphviz_helper::GraphvizHelperImpl;
+// a compact associative table index -> value
+pub mod dense_vec_indices;
+pub mod dense_vec;
+
+
+pub use self::graphviz_writer::GraphvizWriter;
+pub use self::graphviz_builder::GraphvizBuilder;
+pub use self::graphviz_builder_directed::GraphvizBuilderDirectedImpl;
+pub use self::graphviz_builder_undirected::GraphvizBuilderUndirectedImpl;

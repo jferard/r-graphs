@@ -20,6 +20,7 @@
 use graph::dense_ref_vec::DenseRefVec;
 use graph::graphs::Graph;
 
+/// TODO
 pub struct DecoratedGraph<G: Graph, V, E> {
     graph: G,
     vertex_decorations: DenseRefVec<V>,

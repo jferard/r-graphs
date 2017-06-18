@@ -73,8 +73,10 @@ impl<'b, G, V> DFSBrowser<'b, G, V>
 #[cfg(test)]
 mod test {
     use super::*;
-    use util::GraphvizHelper;
-    use util::GraphvizHelperImpl;
+    use util::GraphvizWriter;
+    use util::GraphvizBuilderDirectedImpl;
+    use util::GraphvizBuilder;
+    use util::GraphvizBuilderUndirectedImpl;
     use graph::UndirectedSimpleGraphImpl;
     use graph::DirectedSimpleGraphImpl;
     use graph::examples::graph1;
@@ -84,12 +86,14 @@ mod test {
     fn test_dfs() {
         let g = graph1::<UndirectedSimpleGraphImpl>();
         {
-            let mut gh: GraphvizHelperImpl<UndirectedSimpleGraphImpl> = GraphvizHelper::new(&g);
+            let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
             {
-                let mut b = DFSBrowser::new(&g, &mut gh);
+                let mut b = DFSBrowser::new(&g, &mut marked_vertices);
                 b.browse();
             }
-            gh.output("gv_output/udfs.dot");
+            let h = GraphvizBuilderUndirectedImpl::new(&g, &marked_vertices);
+            let gw = GraphvizWriter::new(&h);
+            gw.output("gv_output/udfs.dot");
         }
     }
 
@@ -97,12 +101,14 @@ mod test {
     fn test_dfs2() {
         let g = graph2::<DirectedSimpleGraphImpl>();
         {
-            let mut gh: GraphvizHelperImpl<DirectedSimpleGraphImpl> = GraphvizHelper::new(&g);
+            let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
             {
-                let mut b = DFSBrowser::new(&g, &mut gh);
+                let mut b = DFSBrowser::new(&g, &mut marked_vertices);
                 b.browse();
             }
-            gh.output("gv_output/ddfs.dot");
+            let h = GraphvizBuilderDirectedImpl::new(&g, &marked_vertices);
+            let gw = GraphvizWriter::new(&h);
+            gw.output("gv_output/ddfs.dot");
         }
     }
 }

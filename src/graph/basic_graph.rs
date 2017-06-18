@@ -31,6 +31,7 @@ pub struct BasicGraph<E>
     edge_to_vertices: HashMap<usize, (usize, usize)>, // e = (u, v)
 }
 
+/// Every vertex and every edge is identified by an index (usize).
 impl<E> BasicGraph<E>
     where E: EdgeSet<usize, usize>
 {
@@ -45,6 +46,7 @@ impl<E> BasicGraph<E>
         }
     }
 
+    /// Get a free index for a vertex
     pub fn add_vertex(&mut self) -> usize {
         self.vertices.index_consume()
     }
@@ -53,6 +55,7 @@ impl<E> BasicGraph<E>
         self.vertices.free_index(v);
     }
 
+    /// Get a free index for an edge
     pub fn add_edge(&mut self, u: usize, v: usize) -> usize {
         let e = self.edges.index_consume();
         self.adjacent_vertices.add_edge(u, v, e);

@@ -28,7 +28,7 @@ pub struct UndirectedSimpleGraphImpl {
 
 impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
     type ES = SimpleEdgeSet<usize, usize>;
-    type ElementIterator = Box<Iterator<Item = usize> + 'a>;
+    type ElementIterator = Box<Iterator<Item=usize> + 'a>;
     type AdjacentVerticesIterator = Iter<'a, usize, usize>;
 
     fn new(g1: BasicGraph<SimpleEdgeSet<usize, usize>>) -> UndirectedSimpleGraphImpl {
@@ -69,11 +69,11 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         self.g.get_vertices_from_edge(e)
     }
 
-    fn vertices_iter(&'a self) -> Box<Iterator<Item = usize> + 'a> {
+    fn vertices_iter(&'a self) -> Box<Iterator<Item=usize> + 'a> {
         self.g.vertices_iter()
     }
 
-    fn edges_iter(&'a self) -> Box<Iterator<Item = usize> + 'a> {
+    fn edges_iter(&'a self) -> Box<Iterator<Item=usize> + 'a> {
         Box::new(self.g.edges_iter().filter(|&e| e % 2 == 1))
     }
 
@@ -95,18 +95,27 @@ mod test {
     use super::*;
     use graph::Graph;
     use graph::basic_graph::BasicGraph;
-    use util::GraphvizHelper;
-    use util::GraphvizHelperImpl;
+    use util::GraphvizWriter;
+    use util::GraphvizBuilder;
+    use util::GraphvizBuilderUndirectedImpl;
     use graph::examples::graph1;
 
     #[test]
     fn test_gv() {
         let g: UndirectedSimpleGraphImpl = graph1();
-        let mut gh = GraphvizHelperImpl::new(&g);
-        gh.output("gv_output/graph1.dot");
-        gh.mark(vec![1, 2]);
-        gh.mark(vec![5, 6]);
-        gh.output("gv_output/graph2.dot");
+        let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
+        {
+            let h = GraphvizBuilderUndirectedImpl::new(&g, &marked_vertices);
+            let gw = GraphvizWriter::new(&h);
+            gw.output("gv_output/graph1.dot");
+        }
+        marked_vertices.push(vec![1, 2]);
+        marked_vertices.push(vec![5, 6]);
+        {
+            let h = GraphvizBuilderUndirectedImpl::new(&g, &marked_vertices);
+            let gw = GraphvizWriter::new(&h);
+            gw.output("gv_output/graph2.dot");
+        }
     }
 
     #[test]

@@ -17,32 +17,41 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-//use util::GraphvizBuilderDirectedImpl;
-//use util::GraphvizHelperUndirectedImpl;
-//use graph::UndirectedSimpleGraphImpl;
-//use graph::DirectedSimpleGraphImpl;
-//use util::graphviz_builder::GraphvizBuilder;
+use std::io::Write;
+use std::fs::File;
+use std::fs;
+use std::path::Path;
+use util::graphviz_builder::GraphvizBuilder;
 
-pub trait Visitor {
-    #[allow(unused_variables)]
-    fn visit(&mut self, node: usize, parent: Option<usize>) {}
+pub struct GraphvizWriter<'a, B>
+    where B: 'a + GraphvizBuilder<'a>
+{
+    builder: &'a B,
 }
 
-/*
-impl<'a> Visitor for GraphvizHelperUndirectedImpl {
-    fn visit(&mut self, u: usize, _: Option<usize>) {
-        self.mark(vec![u]);
+impl<'a, H> GraphvizWriter<'a, H>
+    where H: 'a + GraphvizBuilder<'a>
+{
+    pub fn new(h: &'a H) -> Self {
+        GraphvizWriter { builder: h }
     }
-}
 
-impl<'a> Visitor for GraphvizBuilderDirectedImpl {
-    fn visit(&mut self, u: usize, _: Option<usize>) {
-        self.mark(vec![u]);
-    }
-}*/
+    pub fn output(&self, filename: &str) {
+        let s = self.builder.build_string();
 
-impl<'a> Visitor for Vec<Vec<usize>> {
-    fn visit(&mut self, u: usize, _: Option<usize>) {
-        self.push(vec![u]);
+        let path = Path::new(filename);
+        match path.parent() {
+            None => {}
+            Some(parent_path) => {
+                fs::create_dir_all(parent_path.to_str().expect("Expect an utf-8 path"))
+                    .expect("Failed to create dir")
+            }
+        }
+
+        File::create(filename)
+            .expect(&("Error opening file: ".to_string() + filename))
+            .write_all(s.as_bytes()) // utf-8 by default
+            .ok()
+            .expect("Writing graph to file failed");
     }
 }

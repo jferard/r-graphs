@@ -19,6 +19,8 @@
 /// ***************************************************************************
 use util::dense_vec_indices::DenseVecIndices;
 
+/// A DenseVec is a Vec with some holes. It is an associative table between a subset of
+/// natural numbers represented by a DenseVecIndices and T values.
 pub struct DenseVec<T> {
     indices: DenseVecIndices,
     values: Vec<T>,
@@ -32,12 +34,15 @@ impl<T: 'static + Clone + PartialEq> DenseVec<T> {
         }
     }
 
+    /// Get a free place and add a value.
+    /// Return the index of the free place.
     pub fn add_value(&mut self, value: T) -> usize {
         let i = self.indices.index_consume();
         self.values[i] = value;
         i
     }
 
+    /// Add a value at a given place. The place must be the next returned by index_consume
     pub fn add_value_at_place(&mut self, element: usize, value: T) {
         let e = self.indices.index_consume();
         assert!(e == element);
@@ -48,16 +53,19 @@ impl<T: 'static + Clone + PartialEq> DenseVec<T> {
         }
     }
 
+    /// Free the place
     pub fn remove_element(&mut self, e: usize) {
         self.indices.free_index(e);
     }
 
-    /** heap cost : use into_iter */
+    /// Return an iterator on values
+    /// heap cost : use into_iter
     pub fn values_iter<'a>(&'a self) -> Box<Iterator<Item = T> + 'a> {
         let it = self.indices.used_indices_iter();
         Box::new(it.map(move |e| self.values[e].clone()))
     }
 
+    /// Gert the value at the index e
     pub fn get_value(&self, e: usize) -> Option<&T> {
         match self.indices.index_is_free(e) {
             false => None,
