@@ -19,7 +19,6 @@
 /// ***************************************************************************
 use graph::graph::Graph;
 
-
 pub trait DirectedSimpleGraph<'a>: Graph<'a> {}
 
 pub trait UndirectedSimpleGraph<'a>: Graph<'a> {}

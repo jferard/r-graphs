@@ -27,6 +27,7 @@ pub mod graphviz_writer;
 pub mod graphviz_builder;
 pub mod graphviz_builder_directed;
 pub mod graphviz_builder_undirected;
+pub mod graphviz_builder_decorated_undirected;
 
 // the sets of edges between couples of vertices
 pub mod edge_set;
@@ -42,3 +43,4 @@ pub use self::graphviz_writer::GraphvizWriter;
 pub use self::graphviz_builder::GraphvizBuilder;
 pub use self::graphviz_builder_directed::GraphvizBuilderDirectedImpl;
 pub use self::graphviz_builder_undirected::GraphvizBuilderUndirectedImpl;
+pub use self::graphviz_builder_decorated_undirected::GraphvizBuilderDecoratedUndirectedImpl;

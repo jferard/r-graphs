@@ -17,37 +17,69 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use graph::dense_ref_vec::DenseRefVec;
-use graph::graphs::Graph;
+use std::iter::Map;
+use std::collections::hash_map::Iter;
+use util::dense_vec::DenseVec;
+use util::edge_set::EdgeSet;
+use graph::Graph;
+use std::marker::PhantomData;
+use std::fmt::Debug;
 
 /// TODO
-pub struct DecoratedGraph<G: Graph, V, E> {
-    graph: G,
-    vertex_decorations: DenseRefVec<V>,
-    edge_decorations: DenseRefVec<E>,
+pub struct DecoratedGraph<'a, G, V, E>
+    where G: 'a + Graph<'a>,
+          V: 'static + PartialEq + Clone + Debug,
+          E: 'static + PartialEq + Clone + Debug
+{
+    graph: &'a mut G,
+    vertex_decorations: DenseVec<V>,
+    edge_decorations: DenseVec<E>,
 }
 
-impl<G: Graph, V, E> DecoratedGraph<G, V, E>
-    where V: 'static + PartialEq + Clone,
-          E: 'static + PartialEq + Clone
+impl<'a, G, V, E> DecoratedGraph<'a, G, V, E>
+    where G: Graph<'a>,
+          V: 'static + PartialEq + Clone + Debug,
+          E: 'static + PartialEq + Clone + Debug
 {
-    fn new(graph: G) -> DecoratedGraph<G, V, E> {
+    pub fn new(graph: &'a mut G) -> DecoratedGraph<'a, G, V, E> {
         DecoratedGraph {
             graph: graph,
-            vertex_decorations: DenseRefVec::new(),
-            edge_decorations: DenseRefVec::new(),
+            vertex_decorations: DenseVec::new(),
+            edge_decorations: DenseVec::new(),
         }
     }
 
-    fn add_vertex(&mut self, vertex_value: V) -> usize {
+    pub fn add_vertex(&mut self, vertex_value: V) -> usize {
         let v = self.graph.add_vertex();
+        println!("{}", v);
+        println!("v = {:?}", vertex_value);
         self.vertex_decorations.add_value_at_place(v, vertex_value);
+        println!("{:?}", self.vertex_decorations.values_iter().collect::<Vec<V>>());
         v
     }
 
-    fn add_edge(&mut self, v1: usize, v2: usize, edge_value: E) {
+    pub fn add_edge(&mut self, v1: usize, v2: usize, edge_value: E) {
         let e = self.graph.add_edge(v1, v2);
-        self.edge_decorations.add_value_at_place(e, edge_value);
+        println!("{}", e);
+        println!("e = {:?}", edge_value);
+        self.edge_decorations.add_value_at_place((e-1)/2, edge_value);
+        println!("{:?}", self.edge_decorations.values_iter().collect::<Vec<E>>());
+    }
+
+    pub fn vertices_iter(&'a self) -> G::ElementIterator {
+        self.graph.vertices_iter()
+    }
+
+    pub fn vertices_label_iter(&'a self) -> Box<Iterator<Item=(usize, Option<&V>)> + 'a> {
+        Box::new(self.graph.vertices_iter().map(move |i| (i, self.vertex_decorations.get_value(i))))
+    }
+
+    pub fn adjacent_vertices_iter(&'a self, u: usize) -> Option<G::AdjacentVerticesIterator> {
+        self.graph.adjacent_vertices_iter(u) // chain
+    }
+
+    pub fn adjacent_vertices_label_iter(&'a self, u: usize) -> Option<G::AdjacentVerticesIterator> {
+        self.graph.adjacent_vertices_iter(u) // chain
     }
 }
 
@@ -56,14 +88,18 @@ mod test {
     use super::*;
     use graph::Graph;
     use graph::basic_graph::BasicGraph;
-    use util::GraphvizHelper;
-    use util::GraphvizHelperImpl;
-    use graph::examples::graph1;
+    use graph::undirected_simple_graph::UndirectedSimpleGraphImpl;
+    use util::GraphvizBuilder;
+    use util::GraphvizBuilderDecoratedUndirectedImpl;
+    use graph::examples::decorated_graph1;
 
     #[test]
     fn testGV() {
-        let g: UndirectedSimpleGraphImpl = graph1();
-        let dg = DecoratedGraph::new(&g);
+        let mut g = UndirectedSimpleGraphImpl::new(BasicGraph::new());
+        let dg = decorated_graph1(&mut g);
+        let mut v = Vec::new();
+        let gb = GraphvizBuilderDecoratedUndirectedImpl::new(&dg, &v);
+        println!("{}", gb.build_string())
         // let mut gh = GraphvizHelperImpl::new(&g);
         // gh.output("gv_output/graph1.dot");
         // gh.mark(vec![1, 2]);

@@ -23,7 +23,9 @@ pub mod basic_graph;
 pub mod examples;
 pub mod undirected_simple_graph;
 pub mod directed_simple_graph;
+pub mod decorated_graph;
 
 pub use self::graph::Graph;
 pub use self::undirected_simple_graph::UndirectedSimpleGraphImpl;
 pub use self::directed_simple_graph::DirectedSimpleGraphImpl;
+pub use self::decorated_graph::DecoratedGraph;

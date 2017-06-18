@@ -45,6 +45,7 @@ impl<T: 'static + Clone + PartialEq> DenseVec<T> {
     /// Add a value at a given place. The place must be the next returned by index_consume
     pub fn add_value_at_place(&mut self, element: usize, value: T) {
         let e = self.indices.index_consume();
+        println!("{} != {}", e, element);
         assert!(e == element);
         if e == self.values.len() {
             self.values.push(value);
@@ -68,8 +69,8 @@ impl<T: 'static + Clone + PartialEq> DenseVec<T> {
     /// Gert the value at the index e
     pub fn get_value(&self, e: usize) -> Option<&T> {
         match self.indices.index_is_free(e) {
-            false => None,
-            true => Some(&self.values[e]),
+            true => None,
+            false => Some(&self.values[e]),
         }
     }
 

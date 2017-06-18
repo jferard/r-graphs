@@ -21,8 +21,8 @@ use util::edge_set::EdgeSet;
 use graph::basic_graph::BasicGraph;
 
 pub trait Graph<'a> {
-    type ES: EdgeSet<usize, usize>;
     type ElementIterator: Iterator<Item = usize>;
+    type ES: EdgeSet<usize, usize>;
     type AdjacentVerticesIterator: Iterator<Item = (&'a usize, &'a usize)>;
 
     fn new(e: BasicGraph<Self::ES>) -> Self;
