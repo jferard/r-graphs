@@ -29,8 +29,8 @@ use util::graphviz_builder::Painter;
 
 pub struct GraphvizBuilderUndirectedImpl<'a, G, V, E>
     where G: 'a + UndirectedGraph<'a> + DecoratedGraph<'a, V, E>,
-          V: 'static + PartialEq + Clone + Debug,
-          E: 'static + PartialEq + Clone + Debug
+          V: 'a + PartialEq + Clone + Debug,
+          E: 'a + PartialEq + Clone + Debug
 {
     marked_vertices: &'a Vec<Vec<usize>>,
     graph: &'a G,
@@ -41,8 +41,8 @@ pub struct GraphvizBuilderUndirectedImpl<'a, G, V, E>
 
 impl<'a, G, V, E> GraphvizBuilderUndirectedImpl<'a, G, V, E>
     where G: 'a + UndirectedGraph<'a> + DecoratedGraph<'a, V, E>,
-          V: 'static + PartialEq + Clone + Display + Debug,
-          E: 'static + PartialEq + Clone + Display + Debug
+          V: 'a + PartialEq + Clone + Display + Debug,
+          E: 'a + PartialEq + Clone + Display + Debug
 {
     fn build_subgraph(&self, n: usize) -> String {
         let mut s = format!("subgraph cluster{0} {{\nlabel=\"Step {0}\"\n", n);
@@ -65,8 +65,8 @@ impl<'a, G, V, E> GraphvizBuilderUndirectedImpl<'a, G, V, E>
 
 impl<'a, G, V, E> GraphvizBuilder<'a> for GraphvizBuilderUndirectedImpl<'a, G, V, E>
     where G: 'a + UndirectedGraph<'a> + DecoratedGraph<'a, V, E>,
-          V: 'static + PartialEq + Clone + Display + Debug,
-          E: 'static + PartialEq + Clone + Display + Debug
+          V: 'a + PartialEq + Clone + Display + Debug,
+          E: 'a + PartialEq + Clone + Display + Debug
 {
     type G = G;
 

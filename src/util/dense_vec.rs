@@ -17,20 +17,23 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
+use std::marker::PhantomData;
 use util::dense_vec_indices::DenseVecIndices;
 
 /// A DenseVec is a Vec with some holes. It is an associative table between a subset of
 /// natural numbers represented by a DenseVecIndices and T values.
-pub struct DenseVec<T> {
+pub struct DenseVec<'a, T> where T: 'a {
     indices: DenseVecIndices,
     values: Vec<T>,
+    phantom: PhantomData<&'a T>,
 }
 
-impl<T: 'static + Clone + PartialEq> DenseVec<T> {
-    pub fn new() -> DenseVec<T> {
+impl<'a, T> DenseVec<'a, T> where T: 'a + Clone + PartialEq {
+    pub fn new() -> DenseVec<'a, T> {
         DenseVec {
             indices: DenseVecIndices::new(),
             values: Vec::new(),
+            phantom: PhantomData,
         }
     }
 
@@ -46,7 +49,7 @@ impl<T: 'static + Clone + PartialEq> DenseVec<T> {
     pub fn add_value_at_place(&mut self, element: usize, value: T) {
         let e = self.indices.index_consume();
         println!("{} != {}", e, element);
-        assert!(e == element);
+        assert! (e == element);
         if e == self.values.len() {
             self.values.push(value);
         } else {
@@ -61,7 +64,7 @@ impl<T: 'static + Clone + PartialEq> DenseVec<T> {
 
     /// Return an iterator on values
     /// heap cost : use into_iter
-    pub fn values_iter<'a>(&'a self) -> Box<Iterator<Item = T> + 'a> {
+    pub fn values_iter<'b>(&'b self) -> Box<Iterator<Item=T> + 'b> {
         let it = self.indices.used_indices_iter();
         Box::new(it.map(move |e| self.values[e].clone()))
     }
@@ -101,13 +104,13 @@ mod test {
     #[test]
     fn test_dense_ref_vec1() {
         let mut set: DenseVec<usize> = DenseVec::new();
-        assert!(set.size() == 0);
-        assert!(!set.has_element(0));
+        assert! (set.size() == 0);
+        assert! (!set.has_element(0));
         set.add_value_at_place(0, 10);
         assert!(set.size() == 1);
-        assert!(set.has_element(0));
-        assert!(set.has_element(0));
-        assert!(!set.has_element(1));
+        assert! (set.has_element(0));
+        assert! (set.has_element(0));
+        assert! ( !set.has_element(1));
     }
 
     #[test]
@@ -117,7 +120,7 @@ mod test {
         set.add_value_at_place(1, 20);
         set.add_value_at_place(2, 30);
         set.add_value_at_place(3, 40);
-        assert!(set.size() == 4);
+        assert! (set.size() == 4);
     }
 
     #[test]
@@ -142,8 +145,8 @@ mod test {
         set.add_value_at_place(3, 40);
         set.remove_element(2);
         set.add_value_at_place(2, 50);
-        assert!(set.size() == 4);
+        assert! (set.size() == 4);
         let v: Vec<usize> = set.values_iter().collect();
-        assert!(v == vec![10, 20, 50, 40]);
+        assert! (v == vec![10, 20, 50, 40]);
     }
 }

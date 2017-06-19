@@ -32,18 +32,18 @@ use std::fmt::Debug;
 /// TODO
 pub struct GraphDecorator<'a, G, V, E>
     where G: 'a + Graph<'a>,
-          V: 'static + PartialEq + Clone + Debug,
-          E: 'static + PartialEq + Clone + Debug
+          V: 'a + PartialEq + Clone + Debug,
+          E: 'a + PartialEq + Clone + Debug
 {
     graph: &'a mut G,
-    vertex_decorations: DenseVec<V>,
-    edge_decorations: DenseVec<E>,
+    vertex_decorations: DenseVec<'a, V>,
+    edge_decorations: DenseVec<'a, E>,
 }
 
 impl<'a, G, V, E> GraphDecorator<'a, G, V, E>
     where G: Graph<'a> + GraphBuilder<'a>,
-          V: 'static + PartialEq + Clone + Debug,
-          E: 'static + PartialEq + Clone + Debug
+          V: 'a + PartialEq + Clone + Debug,
+          E: 'a + PartialEq + Clone + Debug
 {
     pub fn new(graph: &'a mut G) -> GraphDecorator<'a, G, V, E> {
         GraphDecorator {
@@ -107,16 +107,16 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
     }
 }
 
-impl<'a, G, V, E> DecoratedGraph<'a, V, E> for GraphDecorator<'a, G, V, E>
+impl<'a, G, V, E> DecoratedGraph<'a, &'a V, &'a E> for GraphDecorator<'a, G, V, E>
     where G: Graph<'a>,
           V: 'static + PartialEq + Clone + Debug,
           E: 'static + PartialEq + Clone + Debug {
-    fn vertices_value_iter(&'a self) -> Box<Iterator<Item=(usize, V)> + 'a> {
-        Box::new(self.graph.vertices_iter().map(move |i| (i, self.vertex_decorations.get_value(i).unwrap().clone())))
+    fn vertices_value_iter(&'a self) -> Box<Iterator<Item=(usize, &'a V)> + 'a> {
+        Box::new(self.graph.vertices_iter().map(move |i| (i, self.vertex_decorations.get_value(i).unwrap())))
     }
 
-    fn edges_values_iter(&'a self, u: usize, v: usize) -> Box<Iterator<Item=(usize, E)> + 'a> {
-        Box::new(self.graph.get_edges_from_vertices_iter(u, v).map(move |e| (e, self.edge_decorations.get_value(e).unwrap().clone())))
+    fn edges_values_iter(&'a self, u: usize, v: usize) -> Box<Iterator<Item=(usize, &'a E)> + 'a> {
+        Box::new(self.graph.get_edges_from_vertices_iter(u, v).map(move |e| (e, self.edge_decorations.get_value(e).unwrap())))
     }
 }
 

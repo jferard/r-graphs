@@ -25,8 +25,8 @@ use graph::Graph;
 use std::fmt::Debug;
 
 pub trait DecoratedGraph<'a, V, E>: Graph<'a>
-    where V: 'static + PartialEq + Clone + Debug,
-          E: 'static + PartialEq + Clone + Debug
+    where V: 'a + PartialEq + Clone + Debug,
+          E: 'a + PartialEq + Clone + Debug
 {
     fn vertices_value_iter(&'a self) -> Box<Iterator<Item=(usize, V)> + 'a>;
     fn edges_values_iter(&'a self, u: usize, v:usize) -> Box<Iterator<Item=(usize, E)> + 'a>;
