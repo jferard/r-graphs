@@ -28,13 +28,23 @@ pub trait EdgeSet<V, E>
     where V: Eq + Hash,
           E: Eq + Hash
 {
-    type S; // we might use another iterator
+    type S; // Hashet<E> or E
 
+    /// create a new EdgeSet
     fn new() -> Self;
+
+    /// add an edge
     fn add_edge(&mut self, V, V, E) -> bool;
+
+    /// remove an edge
     fn remove_edge(&mut self, &V, &V, &E) -> bool;
 
+    /// return an iterator on maps vertex -> set
     fn edges_by_to_by_from_iter(&self) -> Iter<V, HashMap<V, Self::S>>;
-    fn edges_by_to_iter(&self, &V) -> Option<Iter<V, Self::S>>;
+
+    /// given a `from` vertex, returns an iterator on (`to`, set of edges | optional edge)
+    fn edges_by_to_iter(&self, &V) -> Iter<V, Self::S>;
+
+    /// given a `from` and a `to` vertex, returns a set of edges | optional edge
     fn get_edges(&self, &V, &V) -> Option<&Self::S>;
 }

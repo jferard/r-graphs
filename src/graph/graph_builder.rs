@@ -17,18 +17,15 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-pub mod graph;
-pub mod graphs;
-pub mod basic_graph;
-pub mod examples;
-pub mod undirected_simple_graph;
-pub mod directed_simple_graph;
-pub mod decorated_graph;
-pub mod graph_decorator;
-pub mod graph_builder;
+use util::edge_set::EdgeSet;
+use graph::basic_graph::BasicGraph;
 
-pub use self::graph::Graph;
-pub use self::undirected_simple_graph::UndirectedSimpleGraphImpl;
-pub use self::directed_simple_graph::DirectedSimpleGraphImpl;
-pub use self::decorated_graph::DecoratedGraph;
-pub use self::graph_decorator::GraphDecorator;
+pub trait GraphBuilder<'a> {
+    type ES: EdgeSet<usize, usize>;
+
+    fn new(e: BasicGraph<Self::ES>) -> Self;
+    fn add_vertex(&mut self) -> usize;
+    fn remove_vertex(&mut self, usize);
+    fn add_edge(&mut self, usize, usize) -> usize;
+    fn remove_edge(&mut self, usize);
+}

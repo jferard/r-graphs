@@ -57,15 +57,11 @@ impl<'b, G, V> DFSBrowser<'b, G, V>
     fn browse_from_helper(&mut self, cur: usize, parent: Option<usize>) {
         self.visitor.visit(cur, parent);
         self.visited.set_visited(cur);
-        match self.g.adjacent_vertices_iter(cur) {
-            Some(m) => {
-                for (&u, _) in m {
-                    if !self.visited.is_visited(u) {
-                        self.browse_from_helper(u, Some(cur));
-                    }
-                }
+        let m = self.g.adjacent_vertices_iter(cur);
+        for (&u, _) in m {
+            if !self.visited.is_visited(u) {
+                self.browse_from_helper(u, Some(cur));
             }
-            None => {}
         }
     }
 }

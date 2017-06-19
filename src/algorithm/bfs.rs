@@ -60,16 +60,12 @@ impl<'b, G, V> BFSBrowser<'b, G, V>
         while !self.queue.is_empty() {
             let (cur, parent) = self.queue.pop_front().unwrap();
             self.visitor.visit(cur, parent);
-            match self.g.adjacent_vertices_iter(cur) {
-                Some(m) => {
-                    for (&u, _) in m {
-                        if !self.visited.is_visited(u) {
-                            self.visited.set_visited(u);
-                            self.queue.push_back((u, Some(cur)));
-                        }
-                    }
+            let m = self.g.adjacent_vertices_iter(cur);
+            for (&u, _) in m {
+                if !self.visited.is_visited(u) {
+                    self.visited.set_visited(u);
+                    self.queue.push_back((u, Some(cur)));
                 }
-                None => {}
             }
         }
     }

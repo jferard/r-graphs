@@ -18,18 +18,20 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 use std::collections::hash_map::Iter;
+use std::iter;
 use util::simple_edge_set::SimpleEdgeSet;
+use graph::decorated_graph::DecoratedGraph;
+use graph::graphs::UndirectedGraph;
 use graph::graph::Graph;
+use graph::graph_builder::GraphBuilder;
 use graph::basic_graph::BasicGraph;
 
 pub struct UndirectedSimpleGraphImpl {
     g: BasicGraph<SimpleEdgeSet<usize, usize>>,
 }
 
-impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
+impl<'a> GraphBuilder<'a> for UndirectedSimpleGraphImpl {
     type ES = SimpleEdgeSet<usize, usize>;
-    type ElementIterator = Box<Iterator<Item=usize> + 'a>;
-    type AdjacentVerticesIterator = Iter<'a, usize, usize>;
 
     fn new(g1: BasicGraph<SimpleEdgeSet<usize, usize>>) -> UndirectedSimpleGraphImpl {
         UndirectedSimpleGraphImpl { g: g1 }
@@ -52,8 +54,14 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         self.g.remove_edge(e);
         self.g.remove_edge(e - 1);
     }
+}
 
-    fn get_edge_from_vertices(&self, u: usize, v: usize) -> Option<usize> {
+impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
+    type ES = SimpleEdgeSet<usize, usize>;
+    type ElementIterator = Box<Iterator<Item=usize> + 'a>;
+    type AdjacentVerticesIterator = Iter<'a, usize, usize>;
+
+    fn get_edges_from_vertices(&self, u: usize, v: usize) -> Option<usize> {
         match self.g.get_edges_from_vertices(u, v) {
             None => {
                 match self.g.get_edges_from_vertices(v, u) {
@@ -62,6 +70,18 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
                 }
             }
             Some(oe) => Some(*oe),
+        }
+    }
+
+    fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Box<Iterator<Item=usize>> {
+        match self.g.get_edges_from_vertices(u, v) {
+            None => {
+                match self.g.get_edges_from_vertices(v, u) {
+                    None => Box::new(iter::empty()),
+                    Some(oe) => Box::new(iter::once(*oe)),
+                }
+            }
+            Some(oe) => Box::new(iter::once(*oe)),
         }
     }
 
@@ -85,10 +105,26 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         self.g.max()
     }
 
-    fn adjacent_vertices_iter(&'a self, u: usize) -> Option<Iter<'a, usize, usize>> {
+    fn adjacent_vertices_iter(&'a self, u: usize) -> Iter<'a, usize, usize> {
         self.g.direct_adjacent_vertices_iter(u) // chain
     }
 }
+
+impl<'a> DecoratedGraph<'a, usize, usize> for UndirectedSimpleGraphImpl {
+    fn vertices_value_iter(&'a self) -> Box<Iterator<Item=(usize, usize)> + 'a> {
+        Box::new(self.vertices_iter().map(move |i| (i, 1)))
+    }
+
+    fn edges_values_iter(&'a self, u: usize, v: usize) -> Box<Iterator<Item=(usize, usize)> + 'a> {
+        match self.get_edges_from_vertices(u, v) {
+            Some(s) => Box::new(iter::once((s, 1))),
+            None => Box::new(iter::empty())
+        }
+    }
+}
+
+impl<'a> UndirectedGraph<'a> for UndirectedSimpleGraphImpl {}
+
 
 #[cfg(test)]
 mod test {

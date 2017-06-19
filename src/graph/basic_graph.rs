@@ -92,7 +92,7 @@ impl<E> BasicGraph<E>
         self.edges.used_indices_iter()
     }
 
-    pub fn direct_adjacent_vertices_iter(&self, u: usize) -> Option<hm_Iter<usize, E::S>> {
+    pub fn direct_adjacent_vertices_iter(&self, u: usize) -> hm_Iter<usize, E::S> {
         self.adjacent_vertices.edges_by_to_iter(&u)
     }
 

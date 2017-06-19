@@ -17,30 +17,42 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
+use std::marker::PhantomData;
+use std::fmt::Debug;
+use std::fmt::Display;
 use graph::UndirectedSimpleGraphImpl;
 use graph::Graph;
+use graph::decorated_graph::DecoratedGraph;
+use graph::graphs::UndirectedGraph;
 use util::graphviz_builder::GraphvizBuilder;
 use util::graphviz_builder::Painter;
 
-pub struct GraphvizBuilderUndirectedImpl<'a>
+pub struct GraphvizBuilderUndirectedImpl<'a, G, V, E>
+    where G: 'a + UndirectedGraph<'a> + DecoratedGraph<'a, V, E>,
+          V: 'static + PartialEq + Clone + Debug,
+          E: 'static + PartialEq + Clone + Debug
 {
     marked_vertices: &'a Vec<Vec<usize>>,
-    graph: &'a UndirectedSimpleGraphImpl,
+    graph: &'a G,
     painter: Painter,
+    phantomV: PhantomData<&'a V>,
+    phantomE: PhantomData<&'a E>,
 }
 
-impl <'a> GraphvizBuilderUndirectedImpl<'a> {
+impl<'a, G, V, E> GraphvizBuilderUndirectedImpl<'a, G, V, E>
+    where G: 'a + UndirectedGraph<'a> + DecoratedGraph<'a, V, E>,
+          V: 'static + PartialEq + Clone + Display + Debug,
+          E: 'static + PartialEq + Clone + Display + Debug
+{
     fn build_subgraph(&self, n: usize) -> String {
         let mut s = format!("subgraph cluster{0} {{\nlabel=\"Step {0}\"\n", n);
-        for from in self.graph.vertices_iter() {
-            s.push_str(&format!("\t\"{0}_{1}\" [label={1}]\n", n, from));
-            match self.graph.adjacent_vertices_iter(from) {
-                Some(m) => {
-                    for to in m.filter_map(|(&u, _)| if u <= from { Some(u) } else { None }) {
-                        s.push_str(&format!("\t\"{0}_{1}\" -- \"{0}_{2}\"\n", n, from, to));
-                    }
+        for (from, label) in self.graph.vertices_value_iter() {
+            s.push_str(&format!("\t\"{0}_{1}\" [label={2}]\n", n, from, label));
+            let m = self.graph.adjacent_vertices_iter(from);
+            for to in m.filter_map(|(&u, _)| if u <= from { Some(u) } else { None }) {
+                for (_, label) in self.graph.edges_values_iter(from, to) {
+                    s.push_str(&format!("\t\"{0}_{1}\" -- \"{0}_{2}\" [label={3}]\n", n, from, to, label));
                 }
-                _ => {}
             }
         }
         // add color : grey for last marked, black for others
@@ -51,15 +63,20 @@ impl <'a> GraphvizBuilderUndirectedImpl<'a> {
 }
 
 
-impl<'a> GraphvizBuilder<'a> for
-GraphvizBuilderUndirectedImpl<'a> {
-    type G = UndirectedSimpleGraphImpl;
+impl<'a, G, V, E> GraphvizBuilder<'a> for GraphvizBuilderUndirectedImpl<'a, G, V, E>
+    where G: 'a + UndirectedGraph<'a> + DecoratedGraph<'a, V, E>,
+          V: 'static + PartialEq + Clone + Display + Debug,
+          E: 'static + PartialEq + Clone + Display + Debug
+{
+    type G = G;
 
-    fn new(graph: &'a Self::G, marked_vertices: &'a Vec<Vec<usize>>) -> GraphvizBuilderUndirectedImpl<'a> {
+    fn new(graph: &'a G, marked_vertices: &'a Vec<Vec<usize>>) -> GraphvizBuilderUndirectedImpl<'a, G, V, E> {
         GraphvizBuilderUndirectedImpl {
             marked_vertices: marked_vertices,
             graph: graph,
-            painter: Painter::new()
+            painter: Painter::new(),
+            phantomV: PhantomData,
+            phantomE: PhantomData,
         }
     }
 

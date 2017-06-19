@@ -20,12 +20,13 @@
 use util::edge_set::EdgeSet;
 use graph::basic_graph::BasicGraph;
 use graph::graph::Graph;
-use graph::decorated_graph::DecoratedGraph;
+use graph::graph_builder::GraphBuilder;
+use graph::graph_decorator::GraphDecorator;
 
 pub fn graph1<'a, T>() -> T
-    where T: Graph<'a>
+    where T: Graph<'a> + GraphBuilder<'a>
 {
-    let mut g: T = Graph::new(BasicGraph::new());
+    let mut g: T = GraphBuilder::new(BasicGraph::new());
     for _ in 0..13 {
         g.add_vertex();
     }
@@ -55,9 +56,9 @@ pub fn graph1<'a, T>() -> T
 }
 
 pub fn graph2<'a, T>() -> T
-    where T: Graph<'a>
+    where T: Graph<'a> + GraphBuilder<'a>
 {
-    let mut g: T = Graph::new(BasicGraph::new());
+    let mut g: T = GraphBuilder::new(BasicGraph::new());
     for _ in 0..21 {
         g.add_vertex();
     }
@@ -96,34 +97,34 @@ pub fn graph2<'a, T>() -> T
     g
 }
 
-pub fn decorated_graph1<'a, G>(g: &'a mut G) -> DecoratedGraph<'a, G, char, i32>
-    where G: Graph<'a>
+pub fn decorated_graph1<'a, G>(g: &'a mut G) -> GraphDecorator<'a, G, char, i32>
+    where G: Graph<'a> + GraphBuilder<'a>
 {
-    let mut dg = DecoratedGraph::new(g);
+    let mut dg = GraphDecorator::new(g);
     let ord_A = 'A' as u8;
     for i in 0..13 {
         dg.add_vertex((i + ord_A) as char);
     }
     // ABCDEFG
     dg.add_edge(0, 1, 1);
-    dg.add_edge(2, 0, 1);
+    dg.add_edge(2, 0, 2);
     dg.add_edge(0, 5, 1);
-    dg.add_edge(0, 6, 1);
+    dg.add_edge(0, 6, 8);
 
     dg.add_edge(3, 4, 1);
     dg.add_edge(5, 3, 1);
-    dg.add_edge(4, 5, 1);
+    dg.add_edge(4, 5, 7);
 
 
-    dg.add_edge(4, 6, 1);
+    dg.add_edge(4, 6, 4);
 
     // HI
     dg.add_edge(7, 8, 1);
 
     // JKLM
-    dg.add_edge(9, 10, 1);
+    dg.add_edge(9, 10, 2);
     dg.add_edge(11, 9, 1);
-    dg.add_edge(9, 12, 1);
+    dg.add_edge(9, 12, 0);
 
     dg.add_edge(11, 12, 1);
     dg

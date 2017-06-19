@@ -25,19 +25,14 @@ pub trait Graph<'a> {
     type ES: EdgeSet<usize, usize>;
     type AdjacentVerticesIterator: Iterator<Item = (&'a usize, &'a usize)>;
 
-    fn new(e: BasicGraph<Self::ES>) -> Self;
-    fn add_vertex(&mut self) -> usize;
-    fn remove_vertex(&mut self, usize);
-    fn add_edge(&mut self, usize, usize) -> usize;
-    fn remove_edge(&mut self, usize);
-
-    fn get_edge_from_vertices(&self, usize, usize) -> Option<usize>;
+    fn get_edges_from_vertices(&self, usize, usize) -> Option<<Self::ES as EdgeSet<usize, usize>>::S>;
+    fn get_edges_from_vertices_iter(&self, usize, usize) -> Self::ElementIterator;
     fn get_vertices_from_edge(&self, usize) -> Option<(usize, usize)>;
 
     fn vertices_iter(&'a self) -> Self::ElementIterator;
     fn edges_iter(&'a self) -> Self::ElementIterator;
 
-    fn adjacent_vertices_iter(&'a self, usize) -> Option<Self::AdjacentVerticesIterator>;
+    fn adjacent_vertices_iter(&'a self, usize) -> Self::AdjacentVerticesIterator;
 
     fn size(&self) -> usize;
     fn max(&self) -> usize;
