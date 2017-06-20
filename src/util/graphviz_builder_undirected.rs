@@ -22,7 +22,7 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use graph::UndirectedSimpleGraphImpl;
 use graph::Graph;
-use graph::decorated_graph::DecoratedGraph;
+use graph::DecoratedGraph;
 use graph::graphs::UndirectedGraph;
 use util::graphviz_builder::GraphvizBuilder;
 use util::graphviz_builder::Painter;

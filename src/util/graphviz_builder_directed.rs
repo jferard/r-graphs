@@ -22,7 +22,7 @@ use std::marker::PhantomData;
 use graph::DirectedSimpleGraphImpl;
 use graph::Graph;
 use graph::graphs::DirectedGraph;
-use graph::decorated_graph::DecoratedGraph;
+use graph::DecoratedGraph;
 use util::graphviz_builder::GraphvizBuilder;
 use util::graphviz_builder::Painter;
 use std::fmt::Display;

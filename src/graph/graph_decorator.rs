@@ -61,7 +61,7 @@ impl<'a, G, V, E> GraphDecorator<'a, G, V, E>
 
     pub fn add_edge(&mut self, v1: usize, v2: usize, edge_value: E) {
         let e = self.graph.add_edge(v1, v2);
-        self.edge_decorations.add_value_at_place(e - 1, edge_value.clone());
+//        self.edge_decorations.add_value_at_place(e - 1, edge_value.clone());
         self.edge_decorations.add_value_at_place(e, edge_value);
     }
 }
@@ -99,11 +99,11 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
     }
 
     fn size(&self) -> usize {
-        unimplemented!()
+        self.graph.size()
     }
 
     fn max(&self) -> usize {
-        unimplemented!()
+        self.graph.max()
     }
 }
 

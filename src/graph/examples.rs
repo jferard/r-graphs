@@ -97,7 +97,7 @@ pub fn graph2<'a, T>() -> T
     g
 }
 
-pub fn decorated_graph1<'a, G>(g: &'a mut G) -> GraphDecorator<'a, G, char, i32>
+pub fn decorated_graph1<'a, G>(g: &'a mut G) -> GraphDecorator<'a, G, char, usize>
     where G: Graph<'a> + GraphBuilder<'a>
 {
     let mut dg = GraphDecorator::new(g);
@@ -107,12 +107,12 @@ pub fn decorated_graph1<'a, G>(g: &'a mut G) -> GraphDecorator<'a, G, char, i32>
     }
     // ABCDEFG
     dg.add_edge(0, 1, 1);
-    dg.add_edge(2, 0, 2);
-    dg.add_edge(0, 5, 1);
-    dg.add_edge(0, 6, 8);
+    dg.add_edge(0, 2, 3);
+    dg.add_edge(1, 5, 12);
+    dg.add_edge(0, 5, 13);
 
     dg.add_edge(3, 4, 1);
-    dg.add_edge(5, 3, 1);
+    dg.add_edge(2, 3, 1);
     dg.add_edge(4, 5, 7);
 
 
