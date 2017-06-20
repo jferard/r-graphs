@@ -17,21 +17,3 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use graph::graph::Graph;
-use util::edge_set::EdgeSet;
-
-pub trait DirectedGraph<'a>: Graph<'a> {}
-
-pub trait UndirectedGraph<'a>: Graph<'a> {}
-
-pub trait SimpleGraph<'a>: Graph<'a> {}
-
-pub trait MultiGraph<'a>: Graph<'a> {}
-
-pub trait DirectedSimpleGraph<'a>: DirectedGraph<'a> + SimpleGraph<'a> {}
-
-pub trait DirectedMultiGraph<'a>: DirectedGraph<'a> + MultiGraph<'a> {}
-
-pub trait UndirectedSimpleGraph<'a>: UndirectedGraph<'a> + SimpleGraph<'a> {}
-
-pub trait UndirectedMultiGraph<'a>: UndirectedGraph<'a> + MultiGraph<'a> {}
