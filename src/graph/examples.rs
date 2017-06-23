@@ -19,16 +19,17 @@
 /// ***************************************************************************
 use util::edge_set::EdgeSet;
 use graph::basic_graph::BasicGraph;
-use graph::graph::Graph;
-use graph::graph_builder::GraphBuilder;
-use graph::graph_decorator::GraphDecorator;
+use graph::Graph;
+use graph::GraphBuilder;
+use graph::GraphDecorator;
+use graph::DecoratedGraph;
 
 pub fn graph1<'a, T>() -> T
     where T: Graph<'a> + GraphBuilder<'a>
 {
     let mut g: T = GraphBuilder::new(BasicGraph::new());
     for _ in 0..13 {
-        g.add_vertex();
+        g.create_vertex();
     }
     // ABCDEFG
     g.add_edge(0, 1);
@@ -60,7 +61,7 @@ pub fn graph2<'a, T>() -> T
 {
     let mut g: T = GraphBuilder::new(BasicGraph::new());
     for _ in 0..21 {
-        g.add_vertex();
+        g.create_vertex();
     }
     g.add_edge(0, 1);
     g.add_edge(2, 0);

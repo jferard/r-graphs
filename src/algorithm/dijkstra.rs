@@ -91,7 +91,7 @@ impl<'a, G, V> DijkstraBrowser<'a, G, V>
     pub fn process(&mut self, dist_node: usize, node: usize) {
         println!("{0}, {1}", dist_node, node);
         self.black[node] = true;
-        for (&neighbor, _) in self.decorated_graph.adjacent_vertices_iter(node) {
+        for neighbor in self.decorated_graph.adjacent_vertices_iter(node) {
             println!("e= {0}", neighbor);
             for (_, weight) in self.decorated_graph.edges_values_iter(node, neighbor) {
                 let dist_neighbor = dist_node + weight;

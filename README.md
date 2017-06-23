@@ -16,5 +16,9 @@ Just learning Rust.
 First step: clone the repository with `git clone https://github.com/jferard/r-graphs`
 Then type: `cargo build` or `cargo test`. The latter will create some graphs in the `gv_output` directory.
 
+## View the output
+On Linux:
+```dot [file].dot -Tsvg | display```
+
 ## TODO
 A lot.

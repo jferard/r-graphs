@@ -21,11 +21,14 @@ use std::iter::Map;
 use std::collections::hash_map::Iter;
 use util::dense_vec::DenseVec;
 use util::edge_set::EdgeSet;
-use graph::graph::Graph;
-use graph::graph_builder::GraphBuilder;
-use graph::graphs::UndirectedGraph;
-use graph::decorated_graph::DecoratedGraph;
-use graph::graphs::DirectedGraph;
+use graph::Graph;
+use graph::VOID;
+use graph::GraphBuilder;
+use graph::DirectedGraph;
+use graph::UndirectedGraph;
+use graph::DirectedSimpleGraphImpl;
+use graph::UndirectedSimpleGraphImpl;
+use graph::DecoratedGraph;
 use std::marker::PhantomData;
 use std::fmt::Debug;
 
@@ -54,15 +57,18 @@ impl<'a, G, V, E> GraphDecorator<'a, G, V, E>
     }
 
     pub fn add_vertex(&mut self, vertex_value: V) -> usize {
-        let v = self.graph.add_vertex();
+        let v = self.graph.create_vertex();
         self.vertex_decorations.add_value_at_place(v, vertex_value);
         v
     }
 
     pub fn add_edge(&mut self, v1: usize, v2: usize, edge_value: E) {
-        let e = self.graph.add_edge(v1, v2);
-//        self.edge_decorations.add_value_at_place(e - 1, edge_value.clone());
-        self.edge_decorations.add_value_at_place(e, edge_value);
+        let e1 = self.graph.add_edge(v1, v2);
+        self.edge_decorations.add_value_at_place(e1, edge_value.clone());
+        let e2 = self.graph.get_reversed_edge(e1);
+        if e2 != VOID {
+            self.edge_decorations.add_value_at_place(e2, edge_value);
+        }
     }
 }
 
@@ -70,9 +76,9 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
     where G: Graph<'a>,
           V: 'static + PartialEq + Clone + Debug,
           E: 'static + PartialEq + Clone + Debug {
-    type ES = G::ES;
     type ElementIterator = G::ElementIterator;
     type AdjacentVerticesIterator = G::AdjacentVerticesIterator;
+    type AdjacentVerticesAndEdgesIterator = G::AdjacentVerticesAndEdgesIterator;
 
     fn vertices_iter(&'a self) -> G::ElementIterator {
         self.graph.vertices_iter()
@@ -80,10 +86,6 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
 
     fn adjacent_vertices_iter(&'a self, u: usize) -> G::AdjacentVerticesIterator {
         self.graph.adjacent_vertices_iter(u) // chain
-    }
-
-    fn get_edges_from_vertices(&self, _: usize, _: usize) -> Option<<Self::ES as EdgeSet<usize, usize>>::S> {
-        unimplemented!()
     }
 
     fn get_edges_from_vertices_iter(&self, _: usize, _: usize) -> Self::ElementIterator {
@@ -104,6 +106,14 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
 
     fn max(&self) -> usize {
         self.graph.max()
+    }
+
+    fn adjacent_vertices_and_edges_iter(&'a self, _: usize) -> Self::AdjacentVerticesAndEdgesIterator {
+        unimplemented!()
+    }
+
+    fn get_reversed_edge(&self, e: usize) -> usize {
+        self.graph.get_reversed_edge(e)
     }
 }
 

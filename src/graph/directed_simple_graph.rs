@@ -21,54 +21,49 @@ use std::collections::hash_map::Iter;
 use std::iter;
 use util::simple_edge_set::SimpleEdgeSet;
 use graph::Graph;
-use graph::graphs::DirectedGraph;
-use graph::graph_builder::GraphBuilder;
-use graph::decorated_graph::DecoratedGraph;
+use graph::VOID;
+use graph::DirectedGraph;
+use graph::GraphBuilder;
+use graph::DecoratedGraph;
 use graph::basic_graph::BasicGraph;
 
 static ONE: usize = 1;
 
 pub struct DirectedSimpleGraphImpl {
-    g: BasicGraph<SimpleEdgeSet<usize, usize>>,
+    basic_graph: BasicGraph<SimpleEdgeSet<usize, usize>>,
 }
 
 impl<'a> GraphBuilder<'a> for DirectedSimpleGraphImpl {
     type ES = SimpleEdgeSet<usize, usize>;
 
-    fn new(g1: BasicGraph<SimpleEdgeSet<usize, usize>>) -> DirectedSimpleGraphImpl {
-        DirectedSimpleGraphImpl { g: g1 }
+    fn new(basic_graph: BasicGraph<SimpleEdgeSet<usize, usize>>) -> DirectedSimpleGraphImpl {
+        DirectedSimpleGraphImpl { basic_graph: basic_graph }
     }
 
-    fn add_vertex(&mut self) -> usize {
-        self.g.add_vertex()
+    fn create_vertex(&mut self) -> usize {
+        self.basic_graph.add_vertex()
     }
 
     fn remove_vertex(&mut self, u: usize) {
-        self.g.remove_vertex(u);
+        self.basic_graph.remove_vertex(u);
     }
 
     fn add_edge(&mut self, u: usize, v: usize) -> usize {
-        self.g.add_edge(u, v)
+        self.basic_graph.add_edge(u, v)
     }
 
     fn remove_edge(&mut self, e: usize) {
-        self.g.remove_edge(e);
+        self.basic_graph.remove_edge(e);
     }
 }
 
 impl<'a> Graph<'a> for DirectedSimpleGraphImpl {
-    type ES = SimpleEdgeSet<usize, usize>;
     type ElementIterator = Box<Iterator<Item=usize> + 'a>;
-    type AdjacentVerticesIterator = Iter<'a, usize, usize>;
-    fn get_edges_from_vertices(&self, u: usize, v: usize) -> Option<usize> {
-        match self.g.get_edges_from_vertices(u, v) {
-            None => None,
-            Some(oe) => Some(*oe),
-        }
-    }
+    type AdjacentVerticesIterator = Box<Iterator<Item=usize> + 'a>;
+    type AdjacentVerticesAndEdgesIterator = Iter<'a, usize, usize>;
 
     fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Box<Iterator<Item=usize>> {
-        match self.g.get_edges_from_vertices(u, v) {
+        match self.basic_graph.get_edges_from_vertices(u, v) {
             None => Box::new(iter::empty()),
             Some(oe) => Box::new(iter::once(*oe)),
         }
@@ -76,27 +71,33 @@ impl<'a> Graph<'a> for DirectedSimpleGraphImpl {
 
 
     fn get_vertices_from_edge(&self, e: usize) -> Option<(usize, usize)> {
-        self.g.get_vertices_from_edge(e)
+        self.basic_graph.get_vertices_from_edge(e)
     }
 
     fn vertices_iter(&'a self) -> Box<Iterator<Item=usize> + 'a> {
-        self.g.vertices_iter()
+        self.basic_graph.vertices_iter()
     }
 
     fn edges_iter(&'a self) -> Box<Iterator<Item=usize> + 'a> {
-        Box::new(self.g.edges_iter().filter(|&e| e % 2 == 1))
+        Box::new(self.basic_graph.edges_iter().filter(|&e| e % 2 == 1))
     }
 
     fn size(&self) -> usize {
-        self.g.size()
+        self.basic_graph.size()
     }
 
     fn max(&self) -> usize {
-        self.g.max()
+        self.basic_graph.max()
     }
 
-    fn adjacent_vertices_iter(&'a self, u: usize) -> Iter<'a, usize, usize> {
-        self.g.direct_adjacent_vertices_iter(u)
+    fn adjacent_vertices_iter(&'a self, u: usize) -> Box<Iterator<Item=usize> + 'a> {
+        Box::new(self.basic_graph.direct_adjacent_vertices_iter(u).map(move |(&u, _)| u))
+    }
+    fn adjacent_vertices_and_edges_iter(&'a self, u: usize) -> Self::AdjacentVerticesAndEdgesIterator {
+        self.basic_graph.direct_adjacent_vertices_iter(u)
+    }
+    fn get_reversed_edge(&self, e: usize) -> usize {
+        VOID
     }
 }
 
@@ -106,10 +107,7 @@ impl<'a> DecoratedGraph<'a, usize, usize> for DirectedSimpleGraphImpl {
     }
 
     fn edges_values_iter(&'a self, u: usize, v: usize) -> Box<Iterator<Item=(usize, usize)> + 'a> {
-        match self.get_edges_from_vertices(u, v) {
-            Some(s) => Box::new(iter::once((s, s))),
-            None => Box::new(iter::empty())
-        }
+        Box::new(self.get_edges_from_vertices_iter(u, v).map(move |e| (e, 1)))
     }
 }
 
@@ -125,7 +123,7 @@ mod test {
     fn test_adj() {
         let mut g = DirectedSimpleGraphImpl::new(BasicGraph::new());
         for _ in 0..13 {
-            g.add_vertex();
+            g.create_vertex();
         }
         // ABCDEFG
         g.add_edge(0, 1);

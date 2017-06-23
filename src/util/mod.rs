@@ -38,6 +38,7 @@ pub mod dense_vec_indices;
 pub mod dense_vec;
 
 
+pub use self::edge_set::EdgeSet;
 pub use self::graphviz_writer::GraphvizWriter;
 pub use self::graphviz_builder::GraphvizBuilder;
 pub use self::graphviz_builder_directed::GraphvizBuilderDirectedImpl;

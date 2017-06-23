@@ -58,7 +58,7 @@ impl<'b, G, V> DFSBrowser<'b, G, V>
         self.visitor.visit(cur, parent);
         self.visited.set_visited(cur);
         let m = self.g.adjacent_vertices_iter(cur);
-        for (&u, _) in m {
+        for u in m {
             if !self.visited.is_visited(u) {
                 self.browse_from_helper(u, Some(cur));
             }

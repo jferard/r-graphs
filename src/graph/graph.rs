@@ -17,23 +17,40 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use util::edge_set::EdgeSet;
+use util::EdgeSet;
 use graph::basic_graph::BasicGraph;
+
+pub const VOID: usize = (-1_i8) as usize;
 
 pub trait Graph<'a> {
     type ElementIterator: Iterator<Item = usize>;
-    type ES: EdgeSet<usize, usize>;
-    type AdjacentVerticesIterator: Iterator<Item = (&'a usize, &'a usize)>;
+    type AdjacentVerticesIterator: Iterator<Item = usize>;
+    type AdjacentVerticesAndEdgesIterator: Iterator<Item = (&'a usize, &'a usize)>;
 
-    fn get_edges_from_vertices(&self, usize, usize) -> Option<<Self::ES as EdgeSet<usize, usize>>::S>;
+    /// return an iterator on edges. The iterator may be empty
     fn get_edges_from_vertices_iter(&self, usize, usize) -> Self::ElementIterator;
+
+    /// return an Optional couple of vertices
     fn get_vertices_from_edge(&self, usize) -> Option<(usize, usize)>;
 
+    /// return an Iterator on vertices
     fn vertices_iter(&'a self) -> Self::ElementIterator;
+
+    /// return an Iterator on edges
     fn edges_iter(&'a self) -> Self::ElementIterator;
 
+    /// return an Iterator on neighbors vertex
     fn adjacent_vertices_iter(&'a self, usize) -> Self::AdjacentVerticesIterator;
 
+    /// return an Iterator on a (vertex, edge) collection
+    fn adjacent_vertices_and_edges_iter(&'a self, usize) -> Self::AdjacentVerticesAndEdgesIterator;
+
+    /// given an edge u->v, return the edge v->u, or VOID
+    fn get_reversed_edge(&self, e: usize) -> usize;
+
+    /// return the number of vertices
     fn size(&self) -> usize;
+
+    /// return the maximum vertex
     fn max(&self) -> usize;
 }

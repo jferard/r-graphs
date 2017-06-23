@@ -28,8 +28,11 @@ pub mod graph_decorator;
 pub mod graph_builder;
 
 pub use self::graph::Graph;
+pub use self::graph::VOID;
 pub use self::graph_builder::GraphBuilder;
 pub use self::undirected_simple_graph::UndirectedSimpleGraphImpl;
 pub use self::directed_simple_graph::DirectedSimpleGraphImpl;
 pub use self::decorated_graph::DecoratedGraph;
 pub use self::graph_decorator::GraphDecorator;
+pub use self::graphs::DirectedGraph;
+pub use self::graphs::UndirectedGraph;

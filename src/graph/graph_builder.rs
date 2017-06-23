@@ -23,9 +23,18 @@ use graph::basic_graph::BasicGraph;
 pub trait GraphBuilder<'a> {
     type ES: EdgeSet<usize, usize>;
 
+    /// create a new GraphBuilder
     fn new(e: BasicGraph<Self::ES>) -> Self;
-    fn add_vertex(&mut self) -> usize;
-    fn remove_vertex(&mut self, usize);
-    fn add_edge(&mut self, usize, usize) -> usize;
-    fn remove_edge(&mut self, usize);
+
+    /// create a vertex
+    fn create_vertex(&mut self) -> usize;
+
+    /// remove a vertex
+    fn remove_vertex(&mut self, u: usize);
+
+    /// add an edge between u and v, and return a number
+    fn add_edge(&mut self, u: usize, v: usize) -> usize;
+
+    /// remove an edge
+    fn remove_edge(&mut self, e: usize);
 }

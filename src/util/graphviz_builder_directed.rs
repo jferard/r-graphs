@@ -49,7 +49,7 @@ impl<'a, G, V, E> GraphvizBuilderDirectedImpl<'a, G, V, E>
         for (from, label) in self.graph.vertices_value_iter() {
             s.push_str(&format!("\t\"{0}_{1}\" [label={2}]\n", subgraph_index, from, label));
             let m = self.graph.adjacent_vertices_iter(from);
-            for to in m.map(|(&u, _)| u) {
+            for to in m {
                 for (_, label) in self.graph.edges_values_iter(from, to) {
                     s.push_str(&format!("\t\"{0}_{1}\" -> \"{0}_{2}\" [label={3}]\n", subgraph_index, from, to, label));
                 }
