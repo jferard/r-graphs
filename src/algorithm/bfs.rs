@@ -22,21 +22,21 @@ use graph::Graph;
 use algorithm::visitor::Visitor;
 use algorithm::visited::Visited;
 
-pub struct BFSBrowser<'b, G, V>
-    where G: 'b + Graph<'b>,
-          V: 'b + Visitor
+pub struct BFSBrowser<'a, G, V>
+    where G: 'a + Graph<'a>,
+          V: 'a + Visitor
 {
-    g: &'b G,
-    visitor: &'b mut V,
+    g: &'a G,
+    visitor: &'a mut V,
     visited: Visited,
     queue: VecDeque<(usize, Option<usize>)>,
 }
 
-impl<'b, G, V> BFSBrowser<'b, G, V>
-    where G: 'b + Graph<'b>,
-          V: 'b + Visitor
+impl<'a, G, V> BFSBrowser<'a, G, V>
+    where G: 'a + Graph<'a>,
+          V: 'a + Visitor
 {
-    pub fn new(g: &'b G, visitor: &'b mut V) -> BFSBrowser<'b, G, V> {
+    pub fn new(g: &'a G, visitor: &'a mut V) -> BFSBrowser<'a, G, V> {
         BFSBrowser {
             g: g,
             visitor: visitor,

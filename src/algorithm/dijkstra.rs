@@ -18,12 +18,15 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 
-use graph::Graph;
-use graph::DecoratedGraph;
 use std::collections::BinaryHeap;
 use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::cmp::Ordering;
+
+use graph::Graph;
+use graph::VOID;
+use graph::DecoratedGraph;
+use algorithm::visitor::Visitor;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 struct MinDistTo {
@@ -43,65 +46,82 @@ impl PartialOrd for MinDistTo {
     }
 }
 
-pub struct DijkstraBrowser<'a, G, V>
+pub struct DijkstraBrowser<'a, G, V, V2>
     where G: 'a + Graph<'a> + DecoratedGraph<'a, V, &'a usize>,
           V: 'a + PartialEq + Clone + Debug,
+          V2: 'a + Visitor
 {
     decorated_graph: &'a G,
     heap: BinaryHeap<MinDistTo>,
     black: Vec<bool>,
     dist: Vec<usize>,
-    prec: Vec<Option<usize>>,
+    prec: Vec<usize>,
     target: usize,
+    visitor: &'a mut V2,
     phantomData: PhantomData<V>,
 }
 
-impl<'a, G, V> DijkstraBrowser<'a, G, V>
+impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
     where G: 'a + Graph<'a> + DecoratedGraph<'a, V, &'a usize>,
           V: 'a + PartialEq + Clone + Debug,
+          V2: 'a + Visitor
 {
-    pub fn new(decorated_graph: &'a G, source: usize, target: usize) -> DijkstraBrowser<'a, G, V> {
+    pub fn new(decorated_graph: &'a G, source: usize, target: usize, visitor: &'a mut V2) -> DijkstraBrowser<'a, G, V, V2> {
         let mut heap = BinaryHeap::new();
-        heap.push(MinDistTo { min_dist:0, to:source} );
+        heap.push(MinDistTo { min_dist: 0, to: source });
         DijkstraBrowser {
             decorated_graph: decorated_graph,
             heap: heap,
             black: vec![false; decorated_graph.max()],
-            dist: vec![1000; decorated_graph.max()],
-            prec: vec![None; decorated_graph.max()],
+            dist: vec![VOID; decorated_graph.max()],
+            prec: vec![VOID; decorated_graph.max()],
             target: target,
+            visitor: visitor,
             phantomData: PhantomData,
         }
     }
 
     pub fn browse(&mut self) {
         loop {
-            println!("{:?}", self.heap);
-            println!("peek = {:?}", self.heap.peek());
             match self.heap.pop() {
-                None => { println!("None"); break; }
-                Some(MinDistTo { min_dist:_, to:node} ) if self.black[node] => { println!("black {:?}", node); }
-                Some(MinDistTo { min_dist:_, to:node} ) if node == self.target => { println!("target {:?}", node); break; }
-                Some(MinDistTo { min_dist:dist_cur_node, to:cur_node} ) => { self.process(dist_cur_node, cur_node); }
+                None => {
+                    break;
+                }
+                Some(MinDistTo { min_dist: _, to: node }) if self.black[node] => {}
+                Some(MinDistTo { min_dist: _, to: node }) if node == self.target => {
+                    self.visitor.visit(node, None);
+                    break;
+                }
+                Some(MinDistTo { min_dist: dist_cur_node, to: cur_node }) => { self.process(dist_cur_node, cur_node); }
             }
         }
-        println!("{:?}", self.prec);
     }
 
     pub fn process(&mut self, dist_node: usize, node: usize) {
-        println!("{0}, {1}", dist_node, node);
+        self.visitor.visit(node, None);
         self.black[node] = true;
         for neighbor in self.decorated_graph.adjacent_vertices_iter(node) {
-            println!("e= {0}", neighbor);
             for (_, weight) in self.decorated_graph.edges_values_iter(node, neighbor) {
                 let dist_neighbor = dist_node + weight;
                 if dist_neighbor < self.dist[neighbor] {
                     self.dist[neighbor] = dist_neighbor;
-                    self.prec[neighbor] = Some(node);
-                    self.heap.push(MinDistTo { min_dist:dist_neighbor, to:neighbor});
+                    self.prec[neighbor] = node;
+                    self.heap.push(MinDistTo { min_dist: dist_neighbor, to: neighbor });
                 }
             }
         }
+    }
+
+    pub fn path(&self, source: usize, dest: usize) -> Vec<usize> {
+        let mut vec = Vec::new();
+        vec.insert(0, dest);
+        let mut i = self.prec[dest];
+        while i != source {
+            vec.insert(0, i);
+            i = self.prec[i];
+        }
+        vec.insert(0, source);
+        vec
     }
 }
 
@@ -114,14 +134,37 @@ mod test {
     use graph::DirectedSimpleGraphImpl;
     use graph::GraphBuilder;
     use graph::examples::decorated_graph1;
+    use util::GraphvizBuilderDirectedImpl;
+    use util::GraphvizWriter;
+    use util::GraphvizBuilder;
+
 
     #[test]
     fn test_dijkstra() {
+        dijkstra(0, 5);
+    }
+
+    fn dijkstra(source: usize, dest: usize) {
         let mut g = DirectedSimpleGraphImpl::new(BasicGraph::new());
-        let dg = decorated_graph1(&mut g);
         {
-            let mut b = DijkstraBrowser::new(&dg, 0, 5);
-            b.browse();
+            let dg = decorated_graph1(&mut g);
+            let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
+            let mut path = Vec::new();
+            {
+                let mut b = DijkstraBrowser::new(&dg, source, dest, &mut marked_vertices);
+                b.browse();
+                path.push(b.path(source, dest));
+            }
+            {
+                let h = GraphvizBuilderDirectedImpl::new(&dg, &marked_vertices);
+                let gw = GraphvizWriter::new(&h);
+                gw.output("gv_output/dijsktra.dot");
+            }
+            {
+                let h = GraphvizBuilderDirectedImpl::new(&dg, &path);
+                let gw = GraphvizWriter::new(&h);
+                gw.output("gv_output/dijsktra2.dot");
+            }
         }
     }
 }

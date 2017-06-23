@@ -99,7 +99,7 @@ pub fn graph2<'a, T>() -> T
 }
 
 pub fn decorated_graph1<'a, G>(g: &'a mut G) -> GraphDecorator<'a, G, char, usize>
-    where G: Graph<'a> + GraphBuilder<'a>
+    where G: 'a + Graph<'a> + GraphBuilder<'a>
 {
     let mut dg = GraphDecorator::new(g);
     let ord_A = 'A' as u8;
