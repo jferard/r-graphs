@@ -17,7 +17,8 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use std::collections::hash_map::Iter;
+use std::collections::hash_map::Iter as hm_Iter;
+use std::iter::Map;
 use std::iter;
 
 use util::simple_edge_set::SimpleEdgeSet;
@@ -67,8 +68,8 @@ impl<'a> GraphBuilder<'a> for UndirectedSimpleGraphImpl {
 
 impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
     type ElementIterator = Box<Iterator<Item=usize> + 'a>;
-    type AdjacentVerticesIterator = Box<Iterator<Item=usize> + 'a>;
-    type AdjacentVerticesAndEdgesIterator = Iter<'a, usize, usize>;
+    type AdjacentVerticesIterator = Map<hm_Iter<'a, usize, usize>, fn((&usize, &usize)) -> usize>; // Box<Iterator<Item=usize> + 'a>;
+    type AdjacentEdgesByVertexIterator = hm_Iter<'a, usize, usize>;
 
     fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Box<Iterator<Item=usize>> {
         match self.basic_graph.get_edges_from_vertices(u, v) {
@@ -82,7 +83,7 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         }
     }
 
-    fn get_vertices_from_edge(&self, e: usize) -> (usize, usize) {
+    fn get_vertices_from_edge(&self, e: usize) -> Option<(usize, usize)> {
         self.basic_graph.get_vertices_from_edge(e)
     }
 
@@ -110,16 +111,21 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         self.basic_graph.edges_max()
     }
 
-    fn adjacent_vertices_iter(&'a self, u: usize) -> Box<Iterator<Item=usize> + 'a> {
-        Box::new(self.basic_graph.direct_adjacent_vertices_iter(u).map(move |(&u, _)| u))
+    fn adjacent_vertices_iter(&'a self, u: usize) -> Map<hm_Iter<'a, usize, usize>, fn((&usize, &usize)) -> usize>
+    {
+        self.basic_graph.direct_adjacent_vertices_iter(u).map(|(&u, _)| u)
     }
 
-    fn adjacent_vertices_and_edges_iter(&'a self, u: usize) -> Self::AdjacentVerticesAndEdgesIterator {
+
+    fn adjacent_edges_by_vertex_iter(&'a self, u: usize) -> Self::AdjacentEdgesByVertexIterator {
         self.basic_graph.direct_adjacent_vertices_iter(u) // chain
     }
 
-    fn get_reversed_edge(&self, e: usize) -> usize {
-        self.reversed[e]
+    fn get_reversed_edge(&self, e: usize) -> Option<usize> {
+        match self.reversed.get(e) {
+            Some(&e2) => Some(e2),
+            None => None,
+        }
     }
 }
 
@@ -137,8 +143,10 @@ impl<'a> UndirectedGraph<'a> for UndirectedSimpleGraphImpl {}
 
 impl<'a> UndirectedSimpleGraphImpl {
     fn is_main_edge(&self, e: usize) -> bool {
-        let (u, v) = self.basic_graph.get_vertices_from_edge(e);
-        u < v
+        match self.basic_graph.get_vertices_from_edge(e) {
+            None => false,
+            Some((u, v)) => u < v
+        }
     }
 }
 

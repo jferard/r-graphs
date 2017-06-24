@@ -22,14 +22,13 @@ pub const VOID: usize = (-1_i8) as usize;
 pub trait Graph<'a> {
     type ElementIterator: Iterator<Item = usize>;
     type AdjacentVerticesIterator: Iterator<Item = usize>;
-    type AdjacentVerticesAndEdgesIterator: Iterator<Item = (&'a usize, &'a usize)>;
+    type AdjacentEdgesByVertexIterator: Iterator<Item = (&'a usize, &'a usize)>;
 
     /// return an iterator on edges. The iterator may be empty
     fn get_edges_from_vertices_iter(&self, usize, usize) -> Self::ElementIterator;
 
     /// return an Optional couple of vertices
-    /// VOID means no vertex
-    fn get_vertices_from_edge(&self, usize) -> (usize, usize);
+    fn get_vertices_from_edge(&self, usize) -> Option<(usize, usize)>;
 
     /// return an Iterator on vertices
     fn vertices_iter(&'a self) -> Self::ElementIterator;
@@ -41,10 +40,10 @@ pub trait Graph<'a> {
     fn adjacent_vertices_iter(&'a self, usize) -> Self::AdjacentVerticesIterator;
 
     /// return an Iterator on a (vertex, edge) collection
-    fn adjacent_vertices_and_edges_iter(&'a self, usize) -> Self::AdjacentVerticesAndEdgesIterator;
+    fn adjacent_edges_by_vertex_iter(&'a self, usize) -> Self::AdjacentEdgesByVertexIterator;
 
-    /// given an edge u->v, return the edge v->u, or VOID
-    fn get_reversed_edge(&self, e: usize) -> usize;
+    /// given an edge u->v, return the edge v->u
+    fn get_reversed_edge(&self, e: usize) -> Option<usize>;
 
     /// return the number of vertices
     fn vertices_size(&self) -> usize;

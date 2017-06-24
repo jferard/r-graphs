@@ -21,15 +21,16 @@ use std::collections::HashMap;
 use std::collections::hash_map::Iter as hm_Iter;
 use util::dense_vec_indices::DenseVecIndices;
 use util::edge_set::EdgeSet;
-use graph::VOID;
 
 pub struct BasicGraph<E>
     where E: EdgeSet<usize, usize>
 {
     vertices: DenseVecIndices,
     edges: DenseVecIndices,
-    adjacent_vertices: E, // u => v | u -> v
-    edge_to_vertices: HashMap<usize, (usize, usize)>, // e = (u, v)
+    adjacent_vertices: E,
+    // u => v | u -> v
+    edge_to_vertices: HashMap<usize, (usize, usize)>,
+    // e = (u, v)
 }
 
 /// Every vertex and every edge is identified by an index (usize).
@@ -68,8 +69,10 @@ impl<E> BasicGraph<E>
         if self.edges.free_index(e) {
             self.edge_to_vertices.remove(&e);
 
-            let (u, v) = self.get_vertices_from_edge(e);
-            self.adjacent_vertices.remove_edge(&u, &v, &e);
+            match self.get_vertices_from_edge(e) {
+                None => {}
+                Some((u, v)) => { self.adjacent_vertices.remove_edge(&u, &v, &e); }
+            }
         }
     }
 
@@ -77,19 +80,18 @@ impl<E> BasicGraph<E>
         self.adjacent_vertices.get_edges(&u, &v)
     }
 
-    pub fn get_vertices_from_edge(&self, e: usize) -> (usize, usize) {
+    pub fn get_vertices_from_edge(&self, e: usize) -> Option<(usize, usize)> {
         match self.edges.index_is_free(e) {
-            true => (VOID, VOID),
-            false => self.edge_to_vertices[&e],
-
+            true => None,
+            false => Some(self.edge_to_vertices[&e]),
         }
     }
 
-    pub fn vertices_iter<'a>(&'a self) -> Box<Iterator<Item = usize> + 'a> {
+    pub fn vertices_iter<'a>(&'a self) -> Box<Iterator<Item=usize> + 'a> {
         self.vertices.used_indices_iter()
     }
 
-    pub fn edges_iter<'a>(&'a self) -> Box<Iterator<Item = usize> + 'a> {
+    pub fn edges_iter<'a>(&'a self) -> Box<Iterator<Item=usize> + 'a> {
         self.edges.used_indices_iter()
     }
 
