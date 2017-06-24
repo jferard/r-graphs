@@ -38,7 +38,7 @@ impl<'b, G, V> DFSBrowser<'b, G, V>
         DFSBrowser {
             g: g,
             visitor: visitor,
-            visited: Visited::new(g.max()),
+            visited: Visited::new(g.vertices_max()),
         }
     }
 

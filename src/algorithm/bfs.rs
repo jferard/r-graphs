@@ -40,7 +40,7 @@ impl<'a, G, V> BFSBrowser<'a, G, V>
         BFSBrowser {
             g: g,
             visitor: visitor,
-            visited: Visited::new(g.max()),
+            visited: Visited::new(g.vertices_max()),
             queue: VecDeque::new(),
         }
     }

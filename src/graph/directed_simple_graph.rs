@@ -70,7 +70,7 @@ impl<'a> Graph<'a> for DirectedSimpleGraphImpl {
     }
 
 
-    fn get_vertices_from_edge(&self, e: usize) -> Option<(usize, usize)> {
+    fn get_vertices_from_edge(&self, e: usize) -> (usize, usize) {
         self.basic_graph.get_vertices_from_edge(e)
     }
 
@@ -82,12 +82,20 @@ impl<'a> Graph<'a> for DirectedSimpleGraphImpl {
         Box::new(self.basic_graph.edges_iter().filter(|&e| e % 2 == 1))
     }
 
-    fn size(&self) -> usize {
-        self.basic_graph.size()
+    fn vertices_size(&self) -> usize {
+        self.basic_graph.vertices_size()
     }
 
-    fn max(&self) -> usize {
-        self.basic_graph.max()
+    fn vertices_max(&self) -> usize {
+        self.basic_graph.vertices_max()
+    }
+
+    fn edges_size(&self) -> usize {
+        self.basic_graph.edges_size()
+    }
+
+    fn edges_max(&self) -> usize {
+        self.basic_graph.edges_max()
     }
 
     fn adjacent_vertices_iter(&'a self, u: usize) -> Box<Iterator<Item=usize> + 'a> {

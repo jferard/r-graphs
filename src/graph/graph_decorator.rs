@@ -92,7 +92,7 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
         unimplemented!()
     }
 
-    fn get_vertices_from_edge(&self, _: usize) -> Option<(usize, usize)> {
+    fn get_vertices_from_edge(&self, _: usize) -> (usize, usize) {
         unimplemented!()
     }
 
@@ -100,12 +100,20 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
         unimplemented!()
     }
 
-    fn size(&self) -> usize {
-        self.graph.size()
+    fn vertices_size(&self) -> usize {
+        self.graph.vertices_size()
     }
 
-    fn max(&self) -> usize {
-        self.graph.max()
+    fn vertices_max(&self) -> usize {
+        self.graph.vertices_max()
+    }
+
+    fn edges_size(&self) -> usize {
+        self.graph.edges_size()
+    }
+
+    fn edges_max(&self) -> usize {
+        self.graph.edges_max()
     }
 
     fn adjacent_vertices_and_edges_iter(&'a self, _: usize) -> Self::AdjacentVerticesAndEdgesIterator {

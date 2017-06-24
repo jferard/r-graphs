@@ -28,8 +28,7 @@ use graph::basic_graph::BasicGraph;
 
 pub struct UndirectedSimpleGraphImpl {
     basic_graph: BasicGraph<SimpleEdgeSet<usize, usize>>,
-    reversed:Vec<usize>
-
+    reversed: Vec<usize>,
 }
 
 impl<'a> GraphBuilder<'a> for UndirectedSimpleGraphImpl {
@@ -37,7 +36,7 @@ impl<'a> GraphBuilder<'a> for UndirectedSimpleGraphImpl {
 
     fn new(basic_graph: BasicGraph<SimpleEdgeSet<usize, usize>>) -> UndirectedSimpleGraphImpl {
         UndirectedSimpleGraphImpl {
-            reversed: Vec::with_capacity(basic_graph.max()),
+            reversed: Vec::with_capacity(basic_graph.edges_max()),
             basic_graph: basic_graph,
         }
     }
@@ -82,7 +81,7 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         }
     }
 
-    fn get_vertices_from_edge(&self, e: usize) -> Option<(usize, usize)> {
+    fn get_vertices_from_edge(&self, e: usize) -> (usize, usize) {
         self.basic_graph.get_vertices_from_edge(e)
     }
 
@@ -94,12 +93,20 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         Box::new(self.basic_graph.edges_iter().filter(move |&e| self.is_main_edge(e)))
     }
 
-    fn size(&self) -> usize {
-        self.basic_graph.size()
+    fn vertices_size(&self) -> usize {
+        self.basic_graph.vertices_size()
     }
 
-    fn max(&self) -> usize {
-        self.basic_graph.max()
+    fn vertices_max(&self) -> usize {
+        self.basic_graph.vertices_max()
+    }
+
+    fn edges_size(&self) -> usize {
+        self.basic_graph.edges_size()
+    }
+
+    fn edges_max(&self) -> usize {
+        self.basic_graph.edges_max()
     }
 
     fn adjacent_vertices_iter(&'a self, u: usize) -> Box<Iterator<Item=usize> + 'a> {
@@ -129,10 +136,8 @@ impl<'a> UndirectedGraph<'a> for UndirectedSimpleGraphImpl {}
 
 impl<'a> UndirectedSimpleGraphImpl {
     fn is_main_edge(&self, e: usize) -> bool {
-        match self.basic_graph.get_vertices_from_edge(e) {
-            None => false,
-            Some((u, v)) => u < v
-        }
+        let (u, v) = self.basic_graph.get_vertices_from_edge(e);
+        u < v
     }
 }
 

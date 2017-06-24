@@ -31,7 +31,8 @@ pub trait Graph<'a> {
     fn get_edges_from_vertices_iter(&self, usize, usize) -> Self::ElementIterator;
 
     /// return an Optional couple of vertices
-    fn get_vertices_from_edge(&self, usize) -> Option<(usize, usize)>;
+    /// VOID means no vertex
+    fn get_vertices_from_edge(&self, usize) -> (usize, usize);
 
     /// return an Iterator on vertices
     fn vertices_iter(&'a self) -> Self::ElementIterator;
@@ -49,8 +50,14 @@ pub trait Graph<'a> {
     fn get_reversed_edge(&self, e: usize) -> usize;
 
     /// return the number of vertices
-    fn size(&self) -> usize;
+    fn vertices_size(&self) -> usize;
 
     /// return the maximum vertex
-    fn max(&self) -> usize;
+    fn vertices_max(&self) -> usize;
+
+    /// return the number of edges
+    fn edges_size(&self) -> usize;
+
+    /// return the maximum edge
+    fn edges_max(&self) -> usize;
 }

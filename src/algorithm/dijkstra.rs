@@ -72,9 +72,9 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
         DijkstraBrowser {
             decorated_graph: decorated_graph,
             heap: heap,
-            black: vec![false; decorated_graph.max()],
-            dist: vec![VOID; decorated_graph.max()],
-            prec: vec![VOID; decorated_graph.max()],
+            black: vec![false; decorated_graph.vertices_max()],
+            dist: vec![VOID; decorated_graph.vertices_max()],
+            prec: vec![VOID; decorated_graph.vertices_max()],
             target: target,
             visitor: visitor,
             phantomData: PhantomData,

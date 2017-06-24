@@ -21,6 +21,7 @@ use std::collections::HashMap;
 use std::collections::hash_map::Iter as hm_Iter;
 use util::dense_vec_indices::DenseVecIndices;
 use util::edge_set::EdgeSet;
+use graph::VOID;
 
 pub struct BasicGraph<E>
     where E: EdgeSet<usize, usize>
@@ -67,7 +68,7 @@ impl<E> BasicGraph<E>
         if self.edges.free_index(e) {
             self.edge_to_vertices.remove(&e);
 
-            let (u, v) = self.get_vertices_from_edge(e).unwrap();
+            let (u, v) = self.get_vertices_from_edge(e);
             self.adjacent_vertices.remove_edge(&u, &v, &e);
         }
     }
@@ -76,10 +77,10 @@ impl<E> BasicGraph<E>
         self.adjacent_vertices.get_edges(&u, &v)
     }
 
-    pub fn get_vertices_from_edge(&self, e: usize) -> Option<(usize, usize)> {
+    pub fn get_vertices_from_edge(&self, e: usize) -> (usize, usize) {
         match self.edges.index_is_free(e) {
-            true => None,
-            false => Some(self.edge_to_vertices[&e]),
+            true => (VOID, VOID),
+            false => self.edge_to_vertices[&e],
 
         }
     }
@@ -96,11 +97,19 @@ impl<E> BasicGraph<E>
         self.adjacent_vertices.edges_by_to_iter(&u)
     }
 
-    pub fn size(&self) -> usize {
+    pub fn vertices_size(&self) -> usize {
         self.vertices.size()
     }
 
-    pub fn max(&self) -> usize {
+    pub fn vertices_max(&self) -> usize {
         self.vertices.max()
+    }
+
+    pub fn edges_size(&self) -> usize {
+        self.edges.size()
+    }
+
+    pub fn edges_max(&self) -> usize {
+        self.edges.max()
     }
 }
