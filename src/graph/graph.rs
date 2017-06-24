@@ -17,9 +17,6 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use util::EdgeSet;
-use graph::basic_graph::BasicGraph;
-
 pub const VOID: usize = (-1_i8) as usize;
 
 pub trait Graph<'a> {

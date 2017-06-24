@@ -58,7 +58,7 @@ pub struct DijkstraBrowser<'a, G, V, V2>
     prec: Vec<usize>,
     target: usize,
     visitor: &'a mut V2,
-    phantomData: PhantomData<V>,
+    phantom_v: PhantomData<V>,
 }
 
 impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
@@ -77,7 +77,7 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
             prec: vec![VOID; decorated_graph.vertices_max()],
             target: target,
             visitor: visitor,
-            phantomData: PhantomData,
+            phantom_v: PhantomData,
         }
     }
 
@@ -128,8 +128,6 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
 #[cfg(test)]
 mod test {
     use super::*;
-    use graph::Graph;
-    use graph::DecoratedGraph;
     use graph::basic_graph::BasicGraph;
     use graph::DirectedSimpleGraphImpl;
     use graph::GraphBuilder;

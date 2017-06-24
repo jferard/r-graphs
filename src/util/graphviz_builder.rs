@@ -28,31 +28,3 @@ pub trait GraphvizBuilder<'a> {
 
     fn build_string(&self) -> String;
 }
-
-pub struct Painter{
-}
-
-impl Painter {
-    pub fn new() -> Self {
-        Painter { }
-    }
-
-    // add color : grey for last marked, black for others
-    pub fn add_color_to_subgraph<'a>(&self, s: &mut String, n: usize, marked_vertices: &'a Vec<Vec<usize>>) {
-        if n > 0 {
-            if n > 1 {
-                for m in 0..n - 1 {
-                    for v in &marked_vertices[m] {
-                        s.push_str(&format!("\t\"{0}_{1}\" [fontcolor=white, fillcolor=black, \
-                                                 style=filled]\n",
-                                            n,
-                                            v));
-                    }
-                }
-            }
-            for v in &marked_vertices[n - 1] {
-                s.push_str(&format!("\t\"{0}_{1}\" [fillcolor=grey, style=filled]\n", n, v));
-            }
-        }
-    }
-}

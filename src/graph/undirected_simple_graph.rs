@@ -19,6 +19,7 @@
 /// ***************************************************************************
 use std::collections::hash_map::Iter;
 use std::iter;
+
 use util::simple_edge_set::SimpleEdgeSet;
 use graph::decorated_graph::DecoratedGraph;
 use graph::graphs::UndirectedGraph;
@@ -144,7 +145,6 @@ impl<'a> UndirectedSimpleGraphImpl {
 #[cfg(test)]
 mod test {
     use super::*;
-    use graph::Graph;
     use graph::basic_graph::BasicGraph;
     use util::GraphvizWriter;
     use util::GraphvizBuilder;

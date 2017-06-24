@@ -24,6 +24,7 @@ pub mod ref_tree_disjoint_set;
 pub mod usize_tree_disjoint_set;
 
 pub mod graphviz_writer;
+pub mod graphviz_painter;
 pub mod graphviz_builder;
 pub mod graphviz_builder_directed;
 pub mod graphviz_builder_undirected;
@@ -36,10 +37,12 @@ pub mod multiple_edge_set;
 // a compact associative table index -> value
 pub mod dense_vec_indices;
 pub mod dense_vec;
-
+mod iterator_util;
 
 pub use self::edge_set::EdgeSet;
+pub use self::dense_vec::DenseVec;
 pub use self::graphviz_writer::GraphvizWriter;
+pub use self::graphviz_painter::GraphvizPainter;
 pub use self::graphviz_builder::GraphvizBuilder;
 pub use self::graphviz_builder_directed::GraphvizBuilderDirectedImpl;
 pub use self::graphviz_builder_undirected::GraphvizBuilderUndirectedImpl;

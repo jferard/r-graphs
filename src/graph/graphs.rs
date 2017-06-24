@@ -18,7 +18,6 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 use graph::graph::Graph;
-use util::edge_set::EdgeSet;
 
 pub trait DirectedGraph<'a>: Graph<'a> {}
 

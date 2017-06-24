@@ -19,17 +19,17 @@
 /// ***************************************************************************
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::iter;
 use std::collections::hash_map::Iter;
 use std::cmp::Eq;
 use std::hash::Hash;
 
 use util::edge_set::EdgeSet;
+use util::iterator_util::HashMapHelper;
 
 /// An EdgeSet that accepts multiple edges between two vertices.
 pub struct MultipleEdgeSet<V, E> {
     edges_by_to_by_from: HashMap<V, HashMap<V, HashSet<E>>>,
-    EMPTY_HASH_MAP: HashMap<V, HashSet<E>>
+    helper: HashMapHelper<V, HashSet<E>>
 }
 
 impl<V, E> EdgeSet<V, E> for MultipleEdgeSet<V, E>
@@ -39,7 +39,10 @@ impl<V, E> EdgeSet<V, E> for MultipleEdgeSet<V, E>
     type S = HashSet<E>;
 
     fn new() -> Self {
-        MultipleEdgeSet { edges_by_to_by_from: HashMap::new(), EMPTY_HASH_MAP: HashMap::new() }
+        MultipleEdgeSet {
+            edges_by_to_by_from: HashMap::new(),
+            helper: HashMapHelper::new(),
+        }
     }
 
     /// Add e to the set of vertices between u and v
@@ -88,7 +91,7 @@ impl<V, E> EdgeSet<V, E> for MultipleEdgeSet<V, E>
     fn edges_by_to_iter(&self, u: &V) -> Iter<V, HashSet<E>> {
         match self.edges_by_to_by_from.get(u) {
             Some(m) => m.iter(),
-            None => self.EMPTY_HASH_MAP.iter(),
+            None => self.helper.empty(),
         }
     }
 

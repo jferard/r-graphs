@@ -17,19 +17,13 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use std::iter::Map;
-use std::collections::hash_map::Iter;
-use util::dense_vec::DenseVec;
-use util::edge_set::EdgeSet;
+use util::DenseVec;
 use graph::Graph;
 use graph::VOID;
 use graph::GraphBuilder;
 use graph::DirectedGraph;
 use graph::UndirectedGraph;
-use graph::DirectedSimpleGraphImpl;
-use graph::UndirectedSimpleGraphImpl;
 use graph::DecoratedGraph;
-use std::marker::PhantomData;
 use std::fmt::Debug;
 
 /// TODO
@@ -150,8 +144,6 @@ impl<'a, G, V, E> UndirectedGraph<'a> for GraphDecorator<'a, G, V, E> where G: U
 #[cfg(test)]
 mod test {
     use super::*;
-    use graph::Graph;
-    use graph::decorated_graph::DecoratedGraph;
     use graph::basic_graph::BasicGraph;
     use graph::undirected_simple_graph::UndirectedSimpleGraphImpl;
     use util::GraphvizBuilder;
@@ -160,11 +152,11 @@ mod test {
     use graph::examples::decorated_graph1;
 
     #[test]
-    fn testGV() {
+    fn test_graphviz() {
         let mut g = UndirectedSimpleGraphImpl::new(BasicGraph::new());
         let dg = decorated_graph1(&mut g);
         {
-            let mut v = Vec::new();
+            let v = Vec::new();
             let h = GraphvizBuilderUndirectedImpl::new(&dg, &v);
             let gw = GraphvizWriter::new(&h);
             gw.output("gv_output/graph3.dot");

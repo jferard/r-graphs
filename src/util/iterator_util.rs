@@ -17,13 +17,33 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use graph::Graph;
-use std::fmt::Debug;
+use std::collections::hash_map::HashMap;
+use std::collections::hash_map::Iter as hm_Iter;
+use std::hash::Hash;
 
-pub trait DecoratedGraph<'a, V, E>: Graph<'a>
-    where V: 'a + PartialEq + Clone + Debug,
-          E: 'a + PartialEq + Clone + Debug
+pub struct HashMapHelper<K, V> {
+    empty_hash_map: HashMap<K, V>,
+    one_element_hash_map: HashMap<K, V>
+}
+
+impl<'a, K, V> HashMapHelper<K, V>
+    where K: 'a + Eq + Hash,
+          V: 'a
 {
-    fn vertices_value_iter(&'a self) -> Box<Iterator<Item=(usize, V)> + 'a>;
-    fn edges_values_iter(&'a self, u: usize, v:usize) -> Box<Iterator<Item=(usize, E)> + 'a>;
+    pub fn new() -> HashMapHelper<K, V> {
+        HashMapHelper {
+            empty_hash_map: HashMap::new(),
+            one_element_hash_map: HashMap::new(),
+        }
+    }
+
+    pub fn empty(&'a self) -> hm_Iter<'a, K, V> {
+        self.empty_hash_map.iter()
+    }
+
+    pub fn once(&'a mut self, k: K, v: V) -> hm_Iter<'a, K, V> {
+        self.one_element_hash_map.clear();
+        self.empty_hash_map.insert(k, v);
+        self.empty_hash_map.iter()
+    }
 }

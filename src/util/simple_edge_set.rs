@@ -18,26 +18,29 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 use std::collections::HashMap;
-use std::iter;
 use std::collections::hash_map::Iter;
 use std::cmp::Eq;
 use std::hash::Hash;
 
 use util::edge_set::EdgeSet;
+use util::iterator_util::HashMapHelper;
 
 pub struct SimpleEdgeSet<V, E> {
     edges_by_to_by_from: HashMap<V, HashMap<V, E>>,
-    EMPTY_HASH_MAP: HashMap<V, E>
+    helper: HashMapHelper<V, E>
 }
 
-impl<V, E> EdgeSet<V, E> for SimpleEdgeSet<V, E>
-    where V: Eq + Hash,
-          E: Eq + Hash
+impl<'a, V, E> EdgeSet<V, E> for SimpleEdgeSet<V, E>
+    where V: 'a + Eq + Hash,
+          E: 'a + Eq + Hash
 {
     type S = E;
 
     fn new() -> Self {
-        SimpleEdgeSet { edges_by_to_by_from: HashMap::new(), EMPTY_HASH_MAP: HashMap::new() }
+        SimpleEdgeSet {
+            edges_by_to_by_from: HashMap::new(),
+            helper: HashMapHelper::new(),
+        }
     }
 
     fn add_edge(&mut self, u: V, v: V, e: E) -> bool {
@@ -84,7 +87,7 @@ impl<V, E> EdgeSet<V, E> for SimpleEdgeSet<V, E>
     fn edges_by_to_iter(&self, u: &V) -> Iter<V, E> {
         match self.edges_by_to_by_from.get(u) {
             Some(m) => m.iter(),
-            None => self.EMPTY_HASH_MAP.iter(),
+            None => self.helper.empty(),
         }
     }
 

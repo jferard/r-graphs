@@ -20,12 +20,10 @@
 use std::marker::PhantomData;
 use std::fmt::Debug;
 use std::fmt::Display;
-use graph::UndirectedSimpleGraphImpl;
-use graph::Graph;
 use graph::DecoratedGraph;
-use graph::graphs::UndirectedGraph;
-use util::graphviz_builder::GraphvizBuilder;
-use util::graphviz_builder::Painter;
+use graph::UndirectedGraph;
+use util::GraphvizBuilder;
+use util::GraphvizPainter;
 
 pub struct GraphvizBuilderUndirectedImpl<'a, G, V, E>
     where G: 'a + UndirectedGraph<'a> + DecoratedGraph<'a, V, E>,
@@ -34,9 +32,9 @@ pub struct GraphvizBuilderUndirectedImpl<'a, G, V, E>
 {
     marked_vertices: &'a Vec<Vec<usize>>,
     graph: &'a G,
-    painter: Painter,
-    phantomV: PhantomData<&'a V>,
-    phantomE: PhantomData<&'a E>,
+    painter: GraphvizPainter,
+    phantom_v: PhantomData<&'a V>,
+    phantom_e: PhantomData<&'a E>,
 }
 
 impl<'a, G, V, E> GraphvizBuilderUndirectedImpl<'a, G, V, E>
@@ -74,9 +72,9 @@ impl<'a, G, V, E> GraphvizBuilder<'a> for GraphvizBuilderUndirectedImpl<'a, G, V
         GraphvizBuilderUndirectedImpl {
             marked_vertices: marked_vertices,
             graph: graph,
-            painter: Painter::new(),
-            phantomV: PhantomData,
-            phantomE: PhantomData,
+            painter: GraphvizPainter::new(),
+            phantom_v: PhantomData,
+            phantom_e: PhantomData,
         }
     }
 

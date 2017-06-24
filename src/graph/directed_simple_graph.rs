@@ -19,6 +19,7 @@
 /// ***************************************************************************
 use std::collections::hash_map::Iter;
 use std::iter;
+
 use util::simple_edge_set::SimpleEdgeSet;
 use graph::Graph;
 use graph::VOID;
@@ -26,8 +27,6 @@ use graph::DirectedGraph;
 use graph::GraphBuilder;
 use graph::DecoratedGraph;
 use graph::basic_graph::BasicGraph;
-
-static ONE: usize = 1;
 
 pub struct DirectedSimpleGraphImpl {
     basic_graph: BasicGraph<SimpleEdgeSet<usize, usize>>,
@@ -37,7 +36,9 @@ impl<'a> GraphBuilder<'a> for DirectedSimpleGraphImpl {
     type ES = SimpleEdgeSet<usize, usize>;
 
     fn new(basic_graph: BasicGraph<SimpleEdgeSet<usize, usize>>) -> DirectedSimpleGraphImpl {
-        DirectedSimpleGraphImpl { basic_graph: basic_graph }
+        DirectedSimpleGraphImpl {
+            basic_graph: basic_graph,
+        }
     }
 
     fn create_vertex(&mut self) -> usize {
@@ -104,7 +105,7 @@ impl<'a> Graph<'a> for DirectedSimpleGraphImpl {
     fn adjacent_vertices_and_edges_iter(&'a self, u: usize) -> Self::AdjacentVerticesAndEdgesIterator {
         self.basic_graph.direct_adjacent_vertices_iter(u)
     }
-    fn get_reversed_edge(&self, e: usize) -> usize {
+    fn get_reversed_edge(&self, _: usize) -> usize {
         VOID
     }
 }
@@ -124,7 +125,6 @@ impl<'a> DirectedGraph<'a> for DirectedSimpleGraphImpl {}
 #[cfg(test)]
 mod test {
     use super::*;
-    use graph::Graph;
     use graph::basic_graph::BasicGraph;
 
     #[test]

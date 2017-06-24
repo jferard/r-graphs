@@ -17,13 +17,29 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use graph::Graph;
-use std::fmt::Debug;
+pub struct GraphvizPainter;
 
-pub trait DecoratedGraph<'a, V, E>: Graph<'a>
-    where V: 'a + PartialEq + Clone + Debug,
-          E: 'a + PartialEq + Clone + Debug
-{
-    fn vertices_value_iter(&'a self) -> Box<Iterator<Item=(usize, V)> + 'a>;
-    fn edges_values_iter(&'a self, u: usize, v:usize) -> Box<Iterator<Item=(usize, E)> + 'a>;
+impl GraphvizPainter {
+    pub fn new() -> Self {
+        GraphvizPainter { }
+    }
+
+    // add color : grey for last marked, black for others
+    pub fn add_color_to_subgraph<'a>(&self, s: &mut String, n: usize, marked_vertices: &'a Vec<Vec<usize>>) {
+        if n > 0 {
+            if n > 1 {
+                for m in 0..n - 1 {
+                    for v in &marked_vertices[m] {
+                        s.push_str(&format!("\t\"{0}_{1}\" [fontcolor=white, fillcolor=black, \
+                                                 style=filled]\n",
+                                            n,
+                                            v));
+                    }
+                }
+            }
+            for v in &marked_vertices[n - 1] {
+                s.push_str(&format!("\t\"{0}_{1}\" [fillcolor=grey, style=filled]\n", n, v));
+            }
+        }
+    }
 }

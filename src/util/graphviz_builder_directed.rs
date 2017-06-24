@@ -19,12 +19,10 @@
 /// ***************************************************************************
 use std::fmt::Debug;
 use std::marker::PhantomData;
-use graph::DirectedSimpleGraphImpl;
-use graph::Graph;
-use graph::graphs::DirectedGraph;
+use graph::DirectedGraph;
 use graph::DecoratedGraph;
-use util::graphviz_builder::GraphvizBuilder;
-use util::graphviz_builder::Painter;
+use util::GraphvizBuilder;
+use util::GraphvizPainter;
 use std::fmt::Display;
 
 pub struct GraphvizBuilderDirectedImpl<'a, G, V, E>
@@ -34,9 +32,9 @@ pub struct GraphvizBuilderDirectedImpl<'a, G, V, E>
 {
     marked_vertices: &'a Vec<Vec<usize>>,
     graph: &'a G,
-    painter: Painter,
-    phantomV: PhantomData<&'a V>,
-    phantomE: PhantomData<&'a E>,
+    painter: GraphvizPainter,
+    phantom_v: PhantomData<&'a V>,
+    phantom_e: PhantomData<&'a E>,
 }
 
 impl<'a, G, V, E> GraphvizBuilderDirectedImpl<'a, G, V, E>
@@ -73,9 +71,9 @@ impl<'a, G, V, E> GraphvizBuilder<'a> for GraphvizBuilderDirectedImpl<'a, G, V, 
         GraphvizBuilderDirectedImpl {
             marked_vertices: marked_vertices,
             graph: graph,
-            painter: Painter::new(),
-            phantomV: PhantomData,
-            phantomE: PhantomData,
+            painter: GraphvizPainter::new(),
+            phantom_v: PhantomData,
+            phantom_e: PhantomData,
         }
     }
 

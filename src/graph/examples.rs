@@ -17,12 +17,10 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use util::edge_set::EdgeSet;
 use graph::basic_graph::BasicGraph;
 use graph::Graph;
 use graph::GraphBuilder;
 use graph::GraphDecorator;
-use graph::DecoratedGraph;
 
 pub fn graph1<'a, T>() -> T
     where T: Graph<'a> + GraphBuilder<'a>
@@ -102,9 +100,9 @@ pub fn decorated_graph1<'a, G>(g: &'a mut G) -> GraphDecorator<'a, G, char, usiz
     where G: 'a + Graph<'a> + GraphBuilder<'a>
 {
     let mut dg = GraphDecorator::new(g);
-    let ord_A = 'A' as u8;
+    let ord_a = 'A' as u8;
     for i in 0..13 {
-        dg.add_vertex((i + ord_A) as char);
+        dg.add_vertex((i + ord_a) as char);
     }
     // ABCDEFG
     dg.add_edge(0, 1, 1);
