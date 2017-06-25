@@ -22,6 +22,7 @@ use std::iter::Map;
 use std::iter;
 
 use util::simple_edge_set::SimpleEdgeSet;
+use util::dense_vec_indices::UsedIndicesIter;
 use graph::Graph;
 use graph::DirectedGraph;
 use graph::GraphBuilder;
@@ -59,11 +60,13 @@ impl<'a> GraphBuilder<'a> for DirectedSimpleGraphImpl {
 }
 
 impl<'a> Graph<'a> for DirectedSimpleGraphImpl {
-    type ElementIterator = Box<Iterator<Item=usize> + 'a>;
+    type VerticesIterator = UsedIndicesIter<'a>;
+    type EdgesIterator = UsedIndicesIter<'a>;
+    type EdgesFromVerticesIterator = Box<Iterator<Item=usize> + 'a>;
     type AdjacentVerticesIterator = Map<hash_map::Iter<'a, usize, usize>, fn((&usize, &usize)) -> usize>;
-    type AdjacentEdgesByVertexIterator = hash_map::Iter<'a, usize, usize>;
+    type AdjacentEdgesByVerticesIterator = hash_map::Iter<'a, usize, usize>;
 
-    fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Box<Iterator<Item=usize>> {
+    fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Self::EdgesFromVerticesIterator {
         match self.basic_graph.get_edges_from_vertices(u, v) {
             None => Box::new(iter::empty()),
             Some(oe) => Box::new(iter::once(*oe)),
@@ -74,11 +77,11 @@ impl<'a> Graph<'a> for DirectedSimpleGraphImpl {
         self.basic_graph.get_vertices_from_edge(e)
     }
 
-    fn vertices_iter(&'a self) -> Self::ElementIterator {
+    fn vertices_iter(&'a self) -> Self::VerticesIterator {
         self.basic_graph.vertices_iter()
     }
 
-    fn edges_iter(&'a self) -> Self::ElementIterator {
+    fn edges_iter(&'a self) -> Self::VerticesIterator {
         self.basic_graph.edges_iter()
     }
 
@@ -101,7 +104,7 @@ impl<'a> Graph<'a> for DirectedSimpleGraphImpl {
     fn adjacent_vertices_iter(&'a self, u: usize) -> Self::AdjacentVerticesIterator {
         self.basic_graph.direct_adjacent_vertices_iter(u).map(|(&u, _)| u)
     }
-    fn adjacent_edges_by_vertex_iter(&'a self, u: usize) -> Self::AdjacentEdgesByVertexIterator {
+    fn adjacent_edges_by_vertex_iter(&'a self, u: usize) -> Self::AdjacentEdgesByVerticesIterator {
         self.basic_graph.direct_adjacent_vertices_iter(u)
     }
     fn get_reversed_edge(&self, _: usize) -> Option<usize> {

@@ -22,6 +22,7 @@ use std::iter::Map;
 use std::iter;
 
 use util::simple_edge_set::SimpleEdgeSet;
+use util::dense_vec_indices::UsedIndicesIter;
 use graph::decorated_graph::DecoratedGraph;
 use graph::graphs::UndirectedGraph;
 use graph::graph::Graph;
@@ -67,11 +68,13 @@ impl<'a> GraphBuilder<'a> for UndirectedSimpleGraphImpl {
 }
 
 impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
-    type ElementIterator = Box<Iterator<Item=usize> + 'a>;
+    type VerticesIterator = UsedIndicesIter<'a>;
+    type EdgesIterator = Box<Iterator<Item=usize> + 'a>;
+    type EdgesFromVerticesIterator = Box<Iterator<Item=usize>>;
     type AdjacentVerticesIterator = Map<hash_map::Iter<'a, usize, usize>, fn((&usize, &usize)) -> usize>;
-    type AdjacentEdgesByVertexIterator = hash_map::Iter<'a, usize, usize>;
+    type AdjacentEdgesByVerticesIterator = hash_map::Iter<'a, usize, usize>;
 
-    fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Box<Iterator<Item=usize>> {
+    fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Self::EdgesFromVerticesIterator {
         match self.basic_graph.get_edges_from_vertices(u, v) {
             None => {
                 match self.basic_graph.get_edges_from_vertices(v, u) {
@@ -87,11 +90,11 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         self.basic_graph.get_vertices_from_edge(e)
     }
 
-    fn vertices_iter(&'a self) -> Self::ElementIterator {
+    fn vertices_iter(&'a self) -> Self::VerticesIterator {
         self.basic_graph.vertices_iter()
     }
 
-    fn edges_iter(&'a self) -> Self::ElementIterator {
+    fn edges_iter(&'a self) -> Self::EdgesIterator {
         Box::new(self.basic_graph.edges_iter().filter(move |&e| self.is_main_edge(e)))
     }
 
@@ -116,7 +119,7 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
     }
 
 
-    fn adjacent_edges_by_vertex_iter(&'a self, u: usize) -> Self::AdjacentEdgesByVertexIterator {
+    fn adjacent_edges_by_vertex_iter(&'a self, u: usize) -> Self::AdjacentEdgesByVerticesIterator {
         self.basic_graph.direct_adjacent_vertices_iter(u) // chain
     }
 

@@ -20,27 +20,15 @@
 pub const VOID: usize = (-1_i8) as usize;
 
 pub trait Graph<'a> {
-    type ElementIterator: Iterator<Item = usize>;
+    // let's define an associated type by iterator
+    type VerticesIterator: Iterator<Item = usize>;
+    type EdgesIterator: Iterator<Item = usize>;
+    type EdgesFromVerticesIterator: Iterator<Item = usize>;
     type AdjacentVerticesIterator: Iterator<Item = usize>;
-    type AdjacentEdgesByVertexIterator: Iterator<Item = (&'a usize, &'a usize)>;
-
-    /// return an iterator on edges. The iterator may be empty
-    fn get_edges_from_vertices_iter(&self, usize, usize) -> Self::ElementIterator;
+    type AdjacentEdgesByVerticesIterator: Iterator<Item = (&'a usize, &'a usize)>;
 
     /// return an Optional couple of vertices
     fn get_vertices_from_edge(&self, usize) -> Option<(usize, usize)>;
-
-    /// return an Iterator on vertices
-    fn vertices_iter(&'a self) -> Self::ElementIterator;
-
-    /// return an Iterator on edges
-    fn edges_iter(&'a self) -> Self::ElementIterator;
-
-    /// return an Iterator on neighbors vertex
-    fn adjacent_vertices_iter(&'a self, usize) -> Self::AdjacentVerticesIterator;
-
-    /// return an Iterator on a (vertex, edge) collection
-    fn adjacent_edges_by_vertex_iter(&'a self, usize) -> Self::AdjacentEdgesByVertexIterator;
 
     /// given an edge u->v, return the edge v->u
     fn get_reversed_edge(&self, e: usize) -> Option<usize>;
@@ -56,4 +44,20 @@ pub trait Graph<'a> {
 
     /// return the maximum edge
     fn edges_max(&self) -> usize;
+
+    /// return an iterator on edges. The iterator may be empty
+    fn get_edges_from_vertices_iter(&self, usize, usize) -> Self::EdgesFromVerticesIterator;
+
+    /// return an Iterator on vertices
+    fn vertices_iter(&'a self) -> Self::VerticesIterator;
+
+    /// return an Iterator on edges
+    fn edges_iter(&'a self) -> Self::EdgesIterator;
+
+    /// return an Iterator on neighbors vertex
+    fn adjacent_vertices_iter(&'a self, usize) -> Self::AdjacentVerticesIterator;
+
+    /// return an Iterator on a (vertex, edge) collection
+    fn adjacent_edges_by_vertex_iter(&'a self, usize) -> Self::AdjacentEdgesByVerticesIterator;
+
 }

@@ -20,6 +20,7 @@
 use std::collections::HashMap;
 use std::collections::hash_map;
 use util::dense_vec_indices::DenseVecIndices;
+use util::dense_vec_indices::UsedIndicesIter;
 use util::edge_set::EdgeSet;
 
 pub struct BasicGraph<E>
@@ -34,15 +35,15 @@ pub struct BasicGraph<E>
 }
 
 /// Every vertex and every edge is identified by an index (usize).
-impl<E> BasicGraph<E>
-    where E: EdgeSet<usize, usize>
+impl<ES> BasicGraph<ES>
+    where ES: EdgeSet<usize, usize>
 {
-    pub fn new() -> BasicGraph<E> {
+    pub fn new() -> BasicGraph<ES> {
         BasicGraph {
             vertices: DenseVecIndices::new(),
             edges: DenseVecIndices::new(),
 
-            adjacent_vertices: E::new(),
+            adjacent_vertices: ES::new(),
 
             edge_to_vertices: HashMap::new(),
         }
@@ -76,7 +77,7 @@ impl<E> BasicGraph<E>
         }
     }
 
-    pub fn get_edges_from_vertices(&self, u: usize, v: usize) -> Option<&E::S> {
+    pub fn get_edges_from_vertices(&self, u: usize, v: usize) -> Option<&ES::S> {
         self.adjacent_vertices.get_edges(&u, &v)
     }
 
@@ -87,15 +88,15 @@ impl<E> BasicGraph<E>
         }
     }
 
-    pub fn vertices_iter<'a>(&'a self) -> Box<Iterator<Item=usize> + 'a> {
+    pub fn vertices_iter<'a>(&'a self) -> UsedIndicesIter<'a> {
         self.vertices.used_indices_iter()
     }
 
-    pub fn edges_iter<'a>(&'a self) -> Box<Iterator<Item=usize> + 'a> {
+    pub fn edges_iter<'a>(&'a self) -> UsedIndicesIter<'a> {
         self.edges.used_indices_iter()
     }
 
-    pub fn direct_adjacent_vertices_iter(&self, u: usize) -> hash_map::Iter<usize, E::S> {
+    pub fn direct_adjacent_vertices_iter(&self, u: usize) -> hash_map::Iter<usize, ES::S> {
         self.adjacent_vertices.edges_by_to_iter(&u)
     }
 

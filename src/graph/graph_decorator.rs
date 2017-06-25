@@ -69,19 +69,21 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
     where G: Graph<'a>,
           V: 'static + PartialEq + Clone + Debug,
           E: 'static + PartialEq + Clone + Debug {
-    type ElementIterator = G::ElementIterator;
+    type VerticesIterator = G::VerticesIterator;
+    type EdgesIterator = G::EdgesIterator;
+    type EdgesFromVerticesIterator = G::EdgesFromVerticesIterator;
     type AdjacentVerticesIterator = G::AdjacentVerticesIterator;
-    type AdjacentEdgesByVertexIterator = G::AdjacentEdgesByVertexIterator;
+    type AdjacentEdgesByVerticesIterator = G::AdjacentEdgesByVerticesIterator;
 
-    fn vertices_iter(&'a self) -> G::ElementIterator {
+    fn vertices_iter(&'a self) -> Self::VerticesIterator {
         self.graph.vertices_iter()
     }
 
-    fn adjacent_vertices_iter(&'a self, u: usize) -> G::AdjacentVerticesIterator {
+    fn adjacent_vertices_iter(&'a self, u: usize) -> Self::AdjacentVerticesIterator {
         self.graph.adjacent_vertices_iter(u) // chain
     }
 
-    fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Self::ElementIterator {
+    fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Self::EdgesFromVerticesIterator {
         self.graph.get_edges_from_vertices_iter(u, v)
     }
 
@@ -89,7 +91,7 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
         self.graph.get_vertices_from_edge(e)
     }
 
-    fn edges_iter(&'a self) -> Self::ElementIterator {
+    fn edges_iter(&'a self) -> Self::EdgesIterator {
         unimplemented!()
     }
 
@@ -109,7 +111,7 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
         self.graph.edges_max()
     }
 
-    fn adjacent_edges_by_vertex_iter(&'a self, u: usize) -> Self::AdjacentEdgesByVertexIterator {
+    fn adjacent_edges_by_vertex_iter(&'a self, u: usize) -> Self::AdjacentEdgesByVerticesIterator {
         self.graph.adjacent_edges_by_vertex_iter(u)
     }
 

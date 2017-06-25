@@ -30,6 +30,8 @@ pub struct DenseVecIndices {
     free_elements: VecDeque<usize>,
 }
 
+pub type UsedIndicesIter<'a> = FilterMap<Enumerate<Iter<'a, bool>>, fn((usize, &bool)) -> Option<usize>>;
+
 impl DenseVecIndices {
     pub fn new() -> DenseVecIndices {
         DenseVecIndices {
@@ -83,11 +85,11 @@ impl DenseVecIndices {
 
     /// Return an iterator on all non free indices.
     /// heap cost : use into_iter
-    pub fn used_indices_iter<'a>(&'a self) -> Box<Iterator<Item = usize> + 'a> {
-        Box::new(self.is_free.iter().enumerate().filter_map(|(e, &free)| match free {
+    pub fn used_indices_iter<'a>(&'a self) -> UsedIndicesIter<'a> {
+        self.is_free.iter().enumerate().filter_map(|(e, &free)| match free {
             true => None,
             false => Some(e),
-        }))
+        })
     }
 
     pub fn index_is_free(&self, e: usize) -> bool {
