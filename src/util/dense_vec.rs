@@ -48,8 +48,7 @@ impl<'a, T> DenseVec<'a, T> where T: 'a + Clone + PartialEq {
     /// Add a value at a given place. The place must be the next returned by index_consume
     pub fn add_value_at_place(&mut self, element: usize, value: T) {
         let e = self.indices.index_consume();
-//        println!("{} != {}", e, element);
-//        assert! (e == element);
+        assert! (e == element);
         if e == self.values.len() {
             self.values.push(value);
         } else {

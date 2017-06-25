@@ -22,3 +22,4 @@ pub mod visitor;
 pub mod dfs;
 pub mod bfs;
 pub mod dijkstra;
+pub mod bellman_ford;
