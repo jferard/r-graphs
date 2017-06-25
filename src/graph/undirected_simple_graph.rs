@@ -17,7 +17,7 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use std::collections::hash_map::Iter as hm_Iter;
+use std::collections::hash_map;
 use std::iter::Map;
 use std::iter;
 
@@ -68,8 +68,8 @@ impl<'a> GraphBuilder<'a> for UndirectedSimpleGraphImpl {
 
 impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
     type ElementIterator = Box<Iterator<Item=usize> + 'a>;
-    type AdjacentVerticesIterator = Map<hm_Iter<'a, usize, usize>, fn((&usize, &usize)) -> usize>; // Box<Iterator<Item=usize> + 'a>;
-    type AdjacentEdgesByVertexIterator = hm_Iter<'a, usize, usize>;
+    type AdjacentVerticesIterator = Map<hash_map::Iter<'a, usize, usize>, fn((&usize, &usize)) -> usize>;
+    type AdjacentEdgesByVertexIterator = hash_map::Iter<'a, usize, usize>;
 
     fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Box<Iterator<Item=usize>> {
         match self.basic_graph.get_edges_from_vertices(u, v) {
@@ -87,11 +87,11 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         self.basic_graph.get_vertices_from_edge(e)
     }
 
-    fn vertices_iter(&'a self) -> Box<Iterator<Item=usize> + 'a> {
+    fn vertices_iter(&'a self) -> Self::ElementIterator {
         self.basic_graph.vertices_iter()
     }
 
-    fn edges_iter(&'a self) -> Box<Iterator<Item=usize> + 'a> {
+    fn edges_iter(&'a self) -> Self::ElementIterator {
         Box::new(self.basic_graph.edges_iter().filter(move |&e| self.is_main_edge(e)))
     }
 
@@ -111,8 +111,7 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         self.basic_graph.edges_max()
     }
 
-    fn adjacent_vertices_iter(&'a self, u: usize) -> Map<hm_Iter<'a, usize, usize>, fn((&usize, &usize)) -> usize>
-    {
+    fn adjacent_vertices_iter(&'a self, u: usize) -> Self::AdjacentVerticesIterator {
         self.basic_graph.direct_adjacent_vertices_iter(u).map(|(&u, _)| u)
     }
 

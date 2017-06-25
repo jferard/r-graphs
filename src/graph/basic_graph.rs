@@ -18,7 +18,7 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 use std::collections::HashMap;
-use std::collections::hash_map::Iter as hm_Iter;
+use std::collections::hash_map;
 use util::dense_vec_indices::DenseVecIndices;
 use util::edge_set::EdgeSet;
 
@@ -95,7 +95,7 @@ impl<E> BasicGraph<E>
         self.edges.used_indices_iter()
     }
 
-    pub fn direct_adjacent_vertices_iter(&self, u: usize) -> hm_Iter<usize, E::S> {
+    pub fn direct_adjacent_vertices_iter(&self, u: usize) -> hash_map::Iter<usize, E::S> {
         self.adjacent_vertices.edges_by_to_iter(&u)
     }
 

@@ -19,7 +19,7 @@
 /// ***************************************************************************
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::collections::hash_map::Iter;
+use std::collections::hash_map;
 use std::cmp::Eq;
 use std::hash::Hash;
 
@@ -84,11 +84,11 @@ impl<V, E> EdgeSet<V, E> for MultipleEdgeSet<V, E>
         ret
     }
 
-    fn edges_by_to_by_from_iter(&self) -> Iter<V, HashMap<V, HashSet<E>>> {
+    fn edges_by_to_by_from_iter(&self) -> hash_map::Iter<V, HashMap<V, HashSet<E>>> {
         self.edges_by_to_by_from.iter()
     }
 
-    fn edges_by_to_iter(&self, u: &V) -> Iter<V, HashSet<E>> {
+    fn edges_by_to_iter(&self, u: &V) -> hash_map::Iter<V, HashSet<E>> {
         match self.edges_by_to_by_from.get(u) {
             Some(m) => m.iter(),
             None => self.helper.empty(),

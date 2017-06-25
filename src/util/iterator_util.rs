@@ -17,8 +17,8 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use std::collections::hash_map::HashMap;
-use std::collections::hash_map::Iter as hm_Iter;
+use std::collections::HashMap;
+use std::collections::hash_map;
 use std::hash::Hash;
 
 pub struct HashMapHelper<K, V> {
@@ -37,11 +37,11 @@ impl<'a, K, V> HashMapHelper<K, V>
         }
     }
 
-    pub fn empty(&'a self) -> hm_Iter<'a, K, V> {
+    pub fn empty(&'a self) -> hash_map::Iter<'a, K, V> {
         self.empty_hash_map.iter()
     }
 
-    pub fn once(&'a mut self, k: K, v: V) -> hm_Iter<'a, K, V> {
+    pub fn once(&'a mut self, k: K, v: V) -> hash_map::Iter<'a, K, V> {
         self.one_element_hash_map.clear();
         self.empty_hash_map.insert(k, v);
         self.empty_hash_map.iter()

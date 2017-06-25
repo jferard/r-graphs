@@ -18,7 +18,7 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 use std::collections::HashMap;
-use std::collections::hash_map::Iter;
+use std::collections::hash_map;
 use std::cmp::Eq;
 use std::hash::Hash;
 
@@ -40,10 +40,10 @@ pub trait EdgeSet<V, E>
     fn remove_edge(&mut self, &V, &V, &E) -> bool;
 
     /// return an iterator on maps vertex -> set
-    fn edges_by_to_by_from_iter(&self) -> Iter<V, HashMap<V, Self::S>>;
+    fn edges_by_to_by_from_iter(&self) -> hash_map::Iter<V, HashMap<V, Self::S>>;
 
     /// given a `from` vertex, returns an iterator on (`to`, set of edges | optional edge)
-    fn edges_by_to_iter(&self, &V) -> Iter<V, Self::S>;
+    fn edges_by_to_iter(&self, &V) -> hash_map::Iter<V, Self::S>;
 
     /// given a `from` and a `to` vertex, returns a set of edges | optional edge
     fn get_edges(&self, &V, &V) -> Option<&Self::S>;

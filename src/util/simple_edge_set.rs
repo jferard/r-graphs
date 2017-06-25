@@ -18,7 +18,7 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 use std::collections::HashMap;
-use std::collections::hash_map::Iter;
+use std::collections::hash_map;
 use std::cmp::Eq;
 use std::hash::Hash;
 
@@ -80,11 +80,11 @@ impl<'a, V, E> EdgeSet<V, E> for SimpleEdgeSet<V, E>
         ret
     }
 
-    fn edges_by_to_by_from_iter(&self) -> Iter<V, HashMap<V, E>> {
+    fn edges_by_to_by_from_iter(&self) -> hash_map::Iter<V, HashMap<V, E>> {
         self.edges_by_to_by_from.iter()
     }
 
-    fn edges_by_to_iter(&self, u: &V) -> Iter<V, E> {
+    fn edges_by_to_iter(&self, u: &V) -> hash_map::Iter<V, E> {
         match self.edges_by_to_by_from.get(u) {
             Some(m) => m.iter(),
             None => self.helper.empty(),
