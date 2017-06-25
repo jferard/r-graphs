@@ -134,6 +134,9 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
 }
 
 impl<'a> DecoratedGraph<'a, usize, usize> for UndirectedSimpleGraphImpl {
+    type VerticesValuesIterator = Box<Iterator<Item=(usize, usize)> + 'a>;
+    type EdgesValuesIterator = Box<Iterator<Item=(usize, usize)> + 'a>;
+
     fn vertices_values_iter(&'a self) -> Box<Iterator<Item=(usize, usize)> + 'a> {
         Box::new(self.vertices_iter().map(move |i| (i, 1)))
     }

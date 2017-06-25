@@ -124,11 +124,15 @@ impl<'a, G, V, E> DecoratedGraph<'a, &'a V, &'a E> for GraphDecorator<'a, G, V, 
     where G: Graph<'a>,
           V: 'static + PartialEq + Clone + Debug,
           E: 'static + PartialEq + Clone + Debug {
-    fn vertices_values_iter(&'a self) -> Box<Iterator<Item=(usize, &'a V)> + 'a> {
+    type VerticesValuesIterator = Box<Iterator<Item=(usize, &'a V)> + 'a>;
+    type EdgesValuesIterator = Box<Iterator<Item=(usize, &'a E)> + 'a>;
+
+
+    fn vertices_values_iter(&'a self) -> Self::VerticesValuesIterator {
         Box::new(self.graph.vertices_iter().map(move |i| (i, self.vertex_decorations.get_value(i).unwrap())))
     }
 
-    fn edges_values_iter(&'a self, u: usize, v: usize) -> Box<Iterator<Item=(usize, &'a E)> + 'a> {
+    fn edges_values_iter(&'a self, u: usize, v: usize) -> Self::EdgesValuesIterator {
         Box::new(self.graph.get_edges_from_vertices_iter(u, v).map(move |e| (e, self.edge_decorations.get_value(e).unwrap())))
     }
 }
