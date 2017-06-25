@@ -20,6 +20,8 @@
 use std::collections::HashMap;
 use std::collections::hash_map;
 use std::hash::Hash;
+use std::iter::Empty;
+use std::iter::Once;
 
 pub struct HashMapHelper<K, V> {
     empty_hash_map: HashMap<K, V>,
@@ -47,3 +49,20 @@ impl<'a, K, V> HashMapHelper<K, V>
         self.empty_hash_map.iter()
     }
 }
+
+pub enum EmptyOrOnceIter {
+    UEmpty(Empty<usize>),
+    UOnce(Once<usize>),
+}
+
+impl Iterator for EmptyOrOnceIter {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            &mut EmptyOrOnceIter::UEmpty(ref mut e) => e.next(),
+            &mut EmptyOrOnceIter::UOnce(ref mut o) => o.next(),
+        }
+    }
+}
+

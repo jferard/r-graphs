@@ -23,6 +23,7 @@ use std::iter;
 
 use util::simple_edge_set::SimpleEdgeSet;
 use util::dense_vec_indices::UsedIndicesIter;
+use util::iterator_util::EmptyOrOnceIter;
 use graph::Graph;
 use graph::DirectedGraph;
 use graph::GraphBuilder;
@@ -62,14 +63,14 @@ impl<'a> GraphBuilder<'a> for DirectedSimpleGraphImpl {
 impl<'a> Graph<'a> for DirectedSimpleGraphImpl {
     type VerticesIterator = UsedIndicesIter<'a>;
     type EdgesIterator = UsedIndicesIter<'a>;
-    type EdgesFromVerticesIterator = Box<Iterator<Item=usize> + 'a>;
+    type EdgesFromVerticesIterator = EmptyOrOnceIter;
     type AdjacentVerticesIterator = Map<hash_map::Iter<'a, usize, usize>, fn((&usize, &usize)) -> usize>;
     type AdjacentEdgesByVerticesIterator = hash_map::Iter<'a, usize, usize>;
 
     fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Self::EdgesFromVerticesIterator {
         match self.basic_graph.get_edges_from_vertices(u, v) {
-            None => Box::new(iter::empty()),
-            Some(oe) => Box::new(iter::once(*oe)),
+            None => EmptyOrOnceIter::UEmpty(iter::empty()),
+            Some(oe) => EmptyOrOnceIter::UOnce((iter::once(*oe))),
         }
     }
 

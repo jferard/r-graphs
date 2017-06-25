@@ -22,6 +22,7 @@ use std::iter::Map;
 use std::iter;
 
 use util::simple_edge_set::SimpleEdgeSet;
+use util::iterator_util::EmptyOrOnceIter;
 use util::dense_vec_indices::UsedIndicesIter;
 use graph::decorated_graph::DecoratedGraph;
 use graph::graphs::UndirectedGraph;
@@ -69,8 +70,8 @@ impl<'a> GraphBuilder<'a> for UndirectedSimpleGraphImpl {
 
 impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
     type VerticesIterator = UsedIndicesIter<'a>;
-    type EdgesIterator = Box<Iterator<Item=usize> + 'a>;
-    type EdgesFromVerticesIterator = Box<Iterator<Item=usize>>;
+    type EdgesIterator = Box<Iterator<Item=usize> + 'a>; // can't avoid box here
+    type EdgesFromVerticesIterator = EmptyOrOnceIter;
     type AdjacentVerticesIterator = Map<hash_map::Iter<'a, usize, usize>, fn((&usize, &usize)) -> usize>;
     type AdjacentEdgesByVerticesIterator = hash_map::Iter<'a, usize, usize>;
 
@@ -78,11 +79,11 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         match self.basic_graph.get_edges_from_vertices(u, v) {
             None => {
                 match self.basic_graph.get_edges_from_vertices(v, u) {
-                    None => Box::new(iter::empty()),
-                    Some(oe) => Box::new(iter::once(*oe)),
+                    None => EmptyOrOnceIter::UEmpty(iter::empty()),
+                    Some(oe) => EmptyOrOnceIter::UOnce(iter::once(*oe)),
                 }
             }
-            Some(oe) => Box::new(iter::once(*oe)),
+            Some(oe) => EmptyOrOnceIter::UOnce(iter::once(*oe)),
         }
     }
 
@@ -94,6 +95,7 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         self.basic_graph.vertices_iter()
     }
 
+    // We can't avoid using box because of is_main_edge method
     fn edges_iter(&'a self) -> Self::EdgesIterator {
         Box::new(self.basic_graph.edges_iter().filter(move |&e| self.is_main_edge(e)))
     }

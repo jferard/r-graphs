@@ -37,7 +37,7 @@ pub mod multiple_edge_set;
 // a compact associative table index -> value
 pub mod dense_vec_indices;
 mod dense_vec;
-mod iterator_util;
+pub mod iterator_util;
 
 pub use self::edge_set::EdgeSet;
 pub use self::dense_vec::DenseVec;
