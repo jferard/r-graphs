@@ -44,7 +44,7 @@ impl<'a, G, V, E> GraphvizBuilderDirectedImpl<'a, G, V, E>
 {
     fn build_subgraph(&self, subgraph_index: usize) -> String {
         let mut s = format!("subgraph cluster{0} {{\nlabel=\"Step {0}\"\n", subgraph_index);
-        for (from, label) in self.graph.vertices_value_iter() {
+        for (from, label) in self.graph.vertices_values_iter() {
             s.push_str(&format!("\t\"{0}_{1}\" [label={2}]\n", subgraph_index, from, label));
             let m = self.graph.adjacent_vertices_iter(from);
             for to in m {

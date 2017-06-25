@@ -26,6 +26,6 @@ pub trait DecoratedGraph<'a, V, E>: Graph<'a>
 {
 
 
-    fn vertices_value_iter(&'a self) -> Box<Iterator<Item=(usize, V)> + 'a>;
+    fn vertices_values_iter(&'a self) -> Box<Iterator<Item=(usize, V)> + 'a>;
     fn edges_values_iter(&'a self, u: usize, v:usize) -> Box<Iterator<Item=(usize, E)> + 'a>;
 }
