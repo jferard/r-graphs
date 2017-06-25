@@ -134,15 +134,15 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
 }
 
 impl<'a> DecoratedGraph<'a, usize, usize> for UndirectedSimpleGraphImpl {
-    type VerticesValuesIterator = Box<Iterator<Item=(usize, usize)> + 'a>;
-    type EdgesValuesIterator = Box<Iterator<Item=(usize, usize)> + 'a>;
+    type VerticesValuesIterator = Map<<UndirectedSimpleGraphImpl as Graph<'a>>::VerticesIterator, fn(usize) -> (usize, usize)>;
+    type EdgesValuesIterator = Map<<UndirectedSimpleGraphImpl as Graph<'a>>::EdgesFromVerticesIterator, fn(usize) -> (usize, usize)>;
 
-    fn vertices_values_iter(&'a self) -> Box<Iterator<Item=(usize, usize)> + 'a> {
-        Box::new(self.vertices_iter().map(move |i| (i, 1)))
+    fn vertices_values_iter(&'a self) -> Self::VerticesValuesIterator {
+        self.vertices_iter().map(|i| (i, 1))
     }
 
-    fn edges_values_iter(&'a self, u: usize, v: usize) -> Box<Iterator<Item=(usize, usize)> + 'a> {
-        Box::new(self.get_edges_from_vertices_iter(u, v).map(move |e| (e, 1)))
+    fn edges_values_iter(&'a self, u: usize, v: usize) -> Self::EdgesValuesIterator {
+        self.get_edges_from_vertices_iter(u, v).map(move |e| (e, 1))
     }
 }
 
