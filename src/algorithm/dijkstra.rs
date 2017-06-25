@@ -101,7 +101,11 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
         self.visitor.visit(node, None);
         self.black[node] = true;
         for neighbor in self.decorated_graph.adjacent_vertices_iter(node) {
-            for (_, weight) in self.decorated_graph.edges_values_iter(node, neighbor) {
+            for (_, oweight) in self.decorated_graph.edges_values_iter(node, neighbor) {
+                let weight = match oweight {
+                    Some(w) => *w,
+                    None => 0
+                };
                 let dist_neighbor = dist_node + weight;
                 if dist_neighbor < self.dist[neighbor] {
                     self.dist[neighbor] = dist_neighbor;

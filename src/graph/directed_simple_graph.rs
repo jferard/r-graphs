@@ -114,15 +114,15 @@ impl<'a> Graph<'a> for DirectedSimpleGraphImpl {
 }
 
 impl<'a> DecoratedGraph<'a, usize, usize> for DirectedSimpleGraphImpl {
-    type VerticesValuesIterator = Map<<DirectedSimpleGraphImpl as Graph<'a>>::VerticesIterator, fn(usize) -> (usize, usize)>;
-    type EdgesValuesIterator = Map<<DirectedSimpleGraphImpl as Graph<'a>>::EdgesFromVerticesIterator, fn(usize) -> (usize, usize)>;
+    type VerticesValuesIterator = Map<<DirectedSimpleGraphImpl as Graph<'a>>::VerticesIterator, fn(usize) -> (usize, Option<usize>)>;
+    type EdgesValuesIterator = Map<<DirectedSimpleGraphImpl as Graph<'a>>::EdgesFromVerticesIterator, fn(usize) -> (usize, Option<usize>)>;
 
     fn vertices_values_iter(&'a self) -> Self::VerticesValuesIterator {
-        self.vertices_iter().map(|i| (i, 1))
+        self.vertices_iter().map(|i| (i, Some(i)))
     }
 
     fn edges_values_iter(&'a self, u: usize, v: usize) -> Self::EdgesValuesIterator {
-        self.get_edges_from_vertices_iter(u, v).map(move |e| (e, 1))
+        self.get_edges_from_vertices_iter(u, v).map(move |e| (e, None))
     }
 }
 

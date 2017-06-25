@@ -44,12 +44,18 @@ impl<'a, G, V, E> GraphvizBuilderUndirectedImpl<'a, G, V, E>
 {
     fn build_subgraph(&self, n: usize) -> String {
         let mut s = format!("subgraph cluster{0} {{\nlabel=\"Step {0}\"\n", n);
-        for (from, label) in self.graph.vertices_values_iter() {
-            s.push_str(&format!("\t\"{0}_{1}\" [label={2}]\n", n, from, label));
+        for (from, olabel) in self.graph.vertices_values_iter() {
+            match olabel {
+                Some(label) => { s.push_str(&format!("\t\"{0}_{1}\" [label={2}]\n", n, from, label)); }
+                None => { s.push_str(&format!("\t\"{0}_{1}\"\n", n, from)); }
+            }
             let m = self.graph.adjacent_vertices_iter(from);
             for to in m.filter(|&u| u <= from) {
-                for (_, label) in self.graph.edges_values_iter(from, to) {
-                    s.push_str(&format!("\t\"{0}_{1}\" -- \"{0}_{2}\" [label={3}]\n", n, from, to, label));
+                for (_, olabel) in self.graph.edges_values_iter(from, to) {
+                    match olabel {
+                        Some(label) => { s.push_str(&format!("\t\"{0}_{1}\" -- \"{0}_{2}\" [label={3}]\n", n, from, to, label)); }
+                        None => { s.push_str(&format!("\t\"{0}_{1}\" -- \"{0}_{2}\"\n", n, from, to)); }
+                    }
                 }
             }
         }

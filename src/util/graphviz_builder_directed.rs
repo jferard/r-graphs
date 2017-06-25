@@ -44,12 +44,18 @@ impl<'a, G, V, E> GraphvizBuilderDirectedImpl<'a, G, V, E>
 {
     fn build_subgraph(&self, subgraph_index: usize) -> String {
         let mut s = format!("subgraph cluster{0} {{\nlabel=\"Step {0}\"\n", subgraph_index);
-        for (from, label) in self.graph.vertices_values_iter() {
-            s.push_str(&format!("\t\"{0}_{1}\" [label={2}]\n", subgraph_index, from, label));
+        for (from, olabel) in self.graph.vertices_values_iter() {
+            match olabel {
+                Some(label) => { s.push_str(&format!("\t\"{0}_{1}\" [label={2}]\n", subgraph_index, from, label)); }
+                None => { s.push_str(&format!("\t\"{0}_{1}\"\n", subgraph_index, from)); }
+            }
             let m = self.graph.adjacent_vertices_iter(from);
             for to in m {
-                for (_, label) in self.graph.edges_values_iter(from, to) {
-                    s.push_str(&format!("\t\"{0}_{1}\" -> \"{0}_{2}\" [label={3}]\n", subgraph_index, from, to, label));
+                for (_, olabel) in self.graph.edges_values_iter(from, to) {
+                    match olabel {
+                        Some(label) => { s.push_str(&format!("\t\"{0}_{1}\" -> \"{0}_{2}\" [label={3}]\n", subgraph_index, from, to, label)); }
+                        None => { s.push_str(&format!("\t\"{0}_{1}\" -> \"{0}_{2}\"\n", subgraph_index, from, to)); }
+                    }
                 }
             }
         }
@@ -65,7 +71,7 @@ impl<'a, G, V, E> GraphvizBuilder<'a> for GraphvizBuilderDirectedImpl<'a, G, V, 
           V: 'a + PartialEq + Clone + Debug + Display,
           E: 'a + PartialEq + Clone + Debug + Display
 {
-    type G=G;
+    type G = G;
 
     fn new(graph: &'a G, marked_vertices: &'a Vec<Vec<usize>>) -> GraphvizBuilderDirectedImpl<'a, G, V, E> {
         GraphvizBuilderDirectedImpl {

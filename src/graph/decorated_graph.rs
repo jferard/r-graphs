@@ -24,8 +24,8 @@ pub trait DecoratedGraph<'a, V, E>: Graph<'a>
     where V: 'a + PartialEq + Clone + Debug,
           E: 'a + PartialEq + Clone + Debug
 {
-    type VerticesValuesIterator: Iterator<Item=(usize, V)>;
-    type EdgesValuesIterator: Iterator<Item=(usize, E)>;
+    type VerticesValuesIterator: Iterator<Item=(usize, Option<V>)>;
+    type EdgesValuesIterator: Iterator<Item=(usize, Option<E>)>;
 
     fn vertices_values_iter(&'a self) -> Self::VerticesValuesIterator;
     fn edges_values_iter(&'a self, u: usize, v: usize) -> Self::EdgesValuesIterator;
