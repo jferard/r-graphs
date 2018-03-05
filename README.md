@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/jferard/fastods.svg?branch=master)](https://travis-ci.org/jferard/r-graphs)
+[![Code Coverage](https://img.shields.io/codecov/c/github/jferard/fastods/master.svg)](https://codecov.io/github/jferard/r-graphs?branch=master)
+
 # R-Graphs
 A simple graph library for Rust.
 
