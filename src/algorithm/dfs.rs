@@ -1,3 +1,5 @@
+use algorithm::visited::Visited;
+use algorithm::visitor::Visitor;
 /// *****************************************************************************
 /// R-Graphs - A simple graph library for Rust
 /// Copyright (C) 2016-2017 J. Férard <https://github.com/jferard>
@@ -18,10 +20,8 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 use graph::Graph;
-use algorithm::visitor::Visitor;
-use algorithm::visited::Visited;
 
-pub struct DFSBrowser<'b, G, V>
+pub struct DFSRecursiveBrowser<'b, G, V>
     where G: 'b + Graph<'b>,
           V: 'b + Visitor
 {
@@ -30,12 +30,12 @@ pub struct DFSBrowser<'b, G, V>
     visited: Visited,
 }
 
-impl<'b, G, V> DFSBrowser<'b, G, V>
+impl<'b, G, V> DFSRecursiveBrowser<'b, G, V>
     where G: 'b + Graph<'b>,
           V: 'b + Visitor
 {
-    pub fn new(g: &'b G, visitor: &'b mut V) -> DFSBrowser<'b, G, V> {
-        DFSBrowser {
+    pub fn new(g: &'b G, visitor: &'b mut V) -> DFSRecursiveBrowser<'b, G, V> {
+        DFSRecursiveBrowser {
             g,
             visitor,
             visited: Visited::new(g.vertices_max()),
@@ -66,25 +66,66 @@ impl<'b, G, V> DFSBrowser<'b, G, V>
     }
 }
 
+pub struct DFSIterativeBrowser<'b, G, V>
+    where G: 'b + Graph<'b>,
+          V: 'b + Visitor
+{
+    g: &'b G,
+    visitor: &'b mut V,
+    visited: Visited,
+    to_visit: Vec<(usize, Option<usize>)>,
+}
+
+impl<'b, G, V> DFSIterativeBrowser<'b, G, V>
+    where G: 'b + Graph<'b>,
+          V: 'b + Visitor
+{
+    pub fn new(g: &'b G, visitor: &'b mut V) -> DFSIterativeBrowser<'b, G, V> {
+        DFSIterativeBrowser {
+            g,
+            visitor,
+            visited: Visited::new(g.vertices_max()),
+            to_visit: vec!(),
+        }
+    }
+
+    pub fn browse(&mut self) {
+        let mut iter = self.g.vertices_iter();
+        if let Some(u) = iter.next() {
+            self.to_visit.push((u, None));
+            while let Some((cur, parent)) = self.to_visit.pop() {
+                self.visitor.visit(cur, parent);
+                for u in self.g.adjacent_vertices_iter(cur) {
+                    if !self.visited.is_visited(u) {
+                        self.visited.set_visited(u);
+                        self.to_visit.push((u, Some(cur)));
+                    }
+                }
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use super::*;
-    use util::GraphvizWriter;
-    use util::GraphvizBuilderDirectedImpl;
-    use util::GraphvizBuilder;
-    use util::GraphvizBuilderUndirectedImpl;
-    use graph::UndirectedSimpleGraphImpl;
     use graph::DirectedSimpleGraphImpl;
     use graph::examples::graph1;
     use graph::examples::graph2;
+    use graph::UndirectedSimpleGraphImpl;
+    use util::GraphvizBuilder;
+    use util::GraphvizBuilderDirectedImpl;
+    use util::GraphvizBuilderUndirectedImpl;
+    use util::GraphvizWriter;
+
+    use super::*;
 
     #[test]
-    fn test_dfs() {
+    fn test_recursive_dfs() {
         let g = graph1::<UndirectedSimpleGraphImpl>();
         {
             let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
             {
-                let mut b = DFSBrowser::new(&g, &mut marked_vertices);
+                let mut b = DFSRecursiveBrowser::new(&g, &mut marked_vertices);
                 b.browse();
             }
             let h = GraphvizBuilderUndirectedImpl::new(&g, &marked_vertices);
@@ -94,17 +135,47 @@ mod test {
     }
 
     #[test]
-    fn test_dfs2() {
+    fn test_recursive_dfs2() {
         let g = graph2::<DirectedSimpleGraphImpl>();
         {
             let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
             {
-                let mut b = DFSBrowser::new(&g, &mut marked_vertices);
+                let mut b = DFSRecursiveBrowser::new(&g, &mut marked_vertices);
                 b.browse();
             }
             let h = GraphvizBuilderDirectedImpl::new(&g, &marked_vertices);
             let gw = GraphvizWriter::new(&h);
             gw.output("gv_output/ddfs.dot");
+        }
+    }
+
+    #[test]
+    fn test_iterative_dfs() {
+        let g = graph1::<UndirectedSimpleGraphImpl>();
+        {
+            let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
+            {
+                let mut b = DFSIterativeBrowser::new(&g, &mut marked_vertices);
+                b.browse();
+            }
+            let h = GraphvizBuilderUndirectedImpl::new(&g, &marked_vertices);
+            let gw = GraphvizWriter::new(&h);
+            gw.output("gv_output/udfs2.dot");
+        }
+    }
+
+    #[test]
+    fn test_iterative_dfs2() {
+        let g = graph2::<DirectedSimpleGraphImpl>();
+        {
+            let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
+            {
+                let mut b = DFSIterativeBrowser::new(&g, &mut marked_vertices);
+                b.browse();
+            }
+            let h = GraphvizBuilderDirectedImpl::new(&g, &marked_vertices);
+            let gw = GraphvizWriter::new(&h);
+            gw.output("gv_output/ddfs2.dot");
         }
     }
 }

@@ -57,11 +57,9 @@ impl<'a, G, V> BFSBrowser<'a, G, V>
         self.visited.set_visited(source);
         self.queue.push_back((source, None));
 
-        while !self.queue.is_empty() {
-            let (cur, parent) = self.queue.pop_front().unwrap();
+        while let Some((cur, parent)) = self.queue.pop_front(){
             self.visitor.visit(cur, parent);
-            let m = self.g.adjacent_vertices_iter(cur);
-            for u in m {
+            for u in self.g.adjacent_vertices_iter(cur) {
                 if !self.visited.is_visited(u) {
                     self.visited.set_visited(u);
                     self.queue.push_back((u, Some(cur)));

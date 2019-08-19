@@ -1,3 +1,4 @@
+use algorithm::visitor::Visitor;
 /// *****************************************************************************
 /// R-Graphs - A simple graph library for Rust
 /// Copyright (C) 2016-2017 J. Férard <https://github.com/jferard>
@@ -17,21 +18,10 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-pub mod graph;
-pub mod graphs;
-pub mod basic_graph;
-pub mod examples;
-pub mod undirected_simple_graph;
-pub mod directed_simple_graph;
-mod decorated_graph;
-pub mod graph_decorator;
-pub mod graph_builder;
+use graph::Graph;
 
-pub use self::graph::Graph;
-pub use self::graph_builder::GraphBuilder;
-pub use self::undirected_simple_graph::UndirectedSimpleGraphImpl;
-pub use self::directed_simple_graph::DirectedSimpleGraphImpl;
-pub use self::decorated_graph::DecoratedGraph;
-pub use self::graph_decorator::GraphDecorator;
-pub use self::graphs::DirectedGraph;
-pub use self::graphs::UndirectedGraph;
+pub trait GraphBrowser
+{
+    /// Browse the graph
+    fn browse(&mut self);
+}

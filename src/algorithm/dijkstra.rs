@@ -18,15 +18,14 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 
+use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::fmt::Debug;
 use std::marker::PhantomData;
-use std::cmp::Ordering;
 
-use graph::Graph;
-use graph::VOID;
-use graph::DecoratedGraph;
 use algorithm::visitor::Visitor;
+use graph::DecoratedGraph;
+use graph::Graph;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 struct MinDistTo {
@@ -54,8 +53,8 @@ pub struct DijkstraBrowser<'a, G, V, V2>
     decorated_graph: &'a G,
     heap: BinaryHeap<MinDistTo>,
     black: Vec<bool>,
-    dist: Vec<usize>,
-    prec: Vec<usize>,
+    dist: Vec<Option<usize>>,
+    previous: Vec<Option<usize>>,
     target: usize,
     visitor: &'a mut V2,
     phantom_v: PhantomData<V>,
@@ -73,8 +72,8 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
             decorated_graph,
             heap,
             black: vec![false; decorated_graph.vertices_max()],
-            dist: vec![VOID; decorated_graph.vertices_max()],
-            prec: vec![VOID; decorated_graph.vertices_max()],
+            dist: vec![None; decorated_graph.vertices_max()],
+            previous: vec![None; decorated_graph.vertices_max()],
             target,
             visitor,
             phantom_v: PhantomData,
@@ -101,17 +100,20 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
         self.visitor.visit(node, None);
         self.black[node] = true;
         for neighbor in self.decorated_graph.adjacent_vertices_iter(node) {
-            for (_, oweight) in self.decorated_graph.edges_values_iter(node, neighbor) {
-                let weight = match oweight {
+            for (_, o_weight) in self.decorated_graph.edges_values_iter(node, neighbor) {
+                let weight = match o_weight {
                     Some(w) => *w,
                     None => 0
                 };
                 let dist_neighbor = dist_node + weight;
-                if dist_neighbor < self.dist[neighbor] {
-                    self.dist[neighbor] = dist_neighbor;
-                    self.prec[neighbor] = node;
-                    self.heap.push(MinDistTo { min_dist: dist_neighbor, to: neighbor });
+                if let Some(d) = self.dist[neighbor] {
+                    if d <= dist_neighbor { // not interesting
+                        continue;
+                    }
                 }
+                self.dist[neighbor] = Some(dist_neighbor);
+                self.previous[neighbor] = Some(node);
+                self.heap.push(MinDistTo { min_dist: dist_neighbor, to: neighbor });
             }
         }
     }
@@ -119,10 +121,10 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
     pub fn path(&self, source: usize, dest: usize) -> Vec<usize> {
         let mut vec = Vec::new();
         vec.insert(0, dest);
-        let mut i = self.prec[dest];
+        let mut i = self.previous[dest].expect("should have a previous node");
         while i != source {
             vec.insert(0, i);
-            i = self.prec[i];
+            i = self.previous[i].expect("should have a previous");
         }
         vec.insert(0, source);
         vec
@@ -131,15 +133,15 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use graph::basic_graph::BasicGraph;
     use graph::DirectedSimpleGraphImpl;
-    use graph::GraphBuilder;
     use graph::examples::decorated_graph1;
+    use graph::GraphBuilder;
+    use util::GraphvizBuilder;
     use util::GraphvizBuilderDirectedImpl;
     use util::GraphvizWriter;
-    use util::GraphvizBuilder;
 
+    use super::*;
 
     #[test]
     fn test_dijkstra() {

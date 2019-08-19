@@ -17,8 +17,6 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-pub const VOID: usize = (-1_i8) as usize;
-
 pub trait Graph<'a> {
     // let's define an associated type by iterator
     type VerticesIterator: Iterator<Item = usize>;

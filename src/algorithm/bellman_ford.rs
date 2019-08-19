@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 /// *****************************************************************************
 /// R-Graphs - A simple graph library for Rust
 /// Copyright (C) 2016-2017 J. Férard <https://github.com/jferard>
@@ -19,13 +18,13 @@ use std::cmp::Ordering;
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 
+use std::cmp::Ordering;
 use std::fmt::Debug;
 use std::marker::PhantomData;
 
 use algorithm::visitor::Visitor;
 use graph::DecoratedGraph;
 use graph::Graph;
-use graph::VOID;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 struct MinDistTo {
@@ -52,9 +51,8 @@ pub struct BellmanFordBrowser<'a, G, V, V2>
 {
     decorated_graph: &'a G,
     source: usize,
-    target: usize,
-    dist: Vec<usize>,
-    previous: Vec<usize>,
+    dist: Vec<Option<usize>>,
+    previous: Vec<Option<usize>>,
     negative_cycle: bool,
     visitor: &'a mut V2,
     phantom_v: PhantomData<V>,
@@ -65,16 +63,15 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
           V: 'a + PartialEq + Clone + Debug,
           V2: 'a + Visitor
 {
-    pub fn new(decorated_graph: &'a G, source: usize, target: usize, visitor: &'a mut V2) -> BellmanFordBrowser<'a, G, V, V2> {
-        let mut dist = vec![VOID; decorated_graph.vertices_max()];
-        dist[source] = 0;
+    pub fn new(decorated_graph: &'a G, source: usize, visitor: &'a mut V2) -> BellmanFordBrowser<'a, G, V, V2> {
+        let mut dist = vec![None; decorated_graph.vertices_max()];
+        dist[source] = Some(0);
 
         BellmanFordBrowser {
             decorated_graph,
             source,
-            target,
             dist,
-            previous: vec![VOID; decorated_graph.vertices_max()],
+            previous: vec![None; decorated_graph.vertices_max()],
             negative_cycle: false,
             visitor,
             phantom_v: PhantomData,
@@ -82,26 +79,20 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
     }
 
     pub fn browse(&mut self) {
-        self.dist[self.source] = 0;
-        for i in 0..self.decorated_graph.edges_size() - 1 {
-            println!("step {}", i);
+        self.dist[self.source] = Some(0);
+        for _ in 0..self.decorated_graph.edges_size() - 1 {
             for u in self.decorated_graph.vertices_iter() {
-                let dist_u = self.dist[u];
-                println!("vertex {}, {}", u, dist_u);
-                if dist_u == VOID { // only connected vertices are explored
-                    continue;
+                if let Some(dist_u) = self.dist[u] {
+                    self.process(dist_u, u);
                 }
-                self.process(dist_u, u);
             }
         }
         for u in self.decorated_graph.vertices_iter() {
-            let dist_u = self.dist[u];
-            if dist_u == VOID { // only connected vertices are explored
-                continue;
-            }
-            if self.process(dist_u, u) {
-                self.negative_cycle = true;
-                break;
+            if let Some(dist_u) = self.dist[u] {
+                if self.process(dist_u, u) {
+                    self.negative_cycle = true;
+                    break;
+                }
             }
         }
     }
@@ -115,13 +106,15 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
                     Some(w) => *w,
                     None => 0
                 };
-                println!("neighbor {}, {}", neighbor, weight);
                 let dist_neighbor = dist_node + weight;
-                if dist_neighbor < self.dist[neighbor] {
-                    self.dist[neighbor] = dist_neighbor;
-                    self.previous[neighbor] = node;
-                    changed = true;
+                if let Some(d) = self.dist[neighbor] {
+                    if d <= dist_neighbor { // not interesting
+                        continue;
+                    }
                 }
+                self.dist[neighbor] = Some(dist_neighbor);
+                self.previous[neighbor] = Some(node);
+                changed = true;
             }
         }
         changed
@@ -130,10 +123,10 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
     pub fn path(&self, source: usize, dest: usize) -> Vec<usize> {
         let mut vec = Vec::new();
         vec.insert(0, dest);
-        let mut i = self.previous[dest];
+        let mut i = self.previous[dest].expect("should have a previous node");
         while i != source {
             vec.insert(0, i);
-            i = self.previous[i];
+            i = self.previous[i].expect("should have a previous node");
         }
         vec.insert(0, source);
         vec
@@ -168,7 +161,7 @@ mod test {
             let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
             let mut path = Vec::new();
             {
-                let mut b = BellmanFordBrowser::new(&dg, source, dest, &mut marked_vertices);
+                let mut b = BellmanFordBrowser::new(&dg, source, &mut marked_vertices);
                 b.browse();
                 path.push(b.path(source, dest));
             }
