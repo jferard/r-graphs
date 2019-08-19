@@ -1,3 +1,4 @@
+use std::collections::hash_map::Entry;
 /// *****************************************************************************
 /// R-Graphs - A simple graph library for Rust
 /// Copyright (C) 2016-2017 J. Férard <https://github.com/jferard>
@@ -18,9 +19,9 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 use std::collections::HashMap;
-use std::collections::hash_map::Entry;
-use std::hash::Hash;
 use std::fmt::{self, Debug, Formatter};
+use std::hash::Hash;
+
 use util::disjoint_set::RefDisjointSet;
 
 // DO NOT USE
@@ -28,7 +29,8 @@ use util::disjoint_set::RefDisjointSet;
 pub struct RefTreeDisjointSet<'a, T>
     where T: 'a
 {
-    parent: HashMap<&'a T, &'a T>, // parent of node
+    parent: HashMap<&'a T, &'a T>,
+    // parent of node
     rank: HashMap<&'a T, usize>, // to keep the tree balanced
 }
 
@@ -119,8 +121,8 @@ impl<'a, T: Clone + Eq + Hash> RefDisjointSet<'a, T> for RefTreeDisjointSet<'a, 
         let parent = HashMap::new();
         let rank = HashMap::new();
         RefTreeDisjointSet {
-            parent: parent,
-            rank: rank,
+            parent,
+            rank,
         }
     }
 
@@ -166,8 +168,8 @@ impl<'a, T: Clone + Eq + Hash> RefTreeDisjointSet<'a, T> {
         parent.insert(x, x);
         rank.insert(x, 0);
         RefTreeDisjointSet {
-            parent: parent,
-            rank: rank,
+            parent,
+            rank,
         }
     }
 
@@ -179,8 +181,8 @@ impl<'a, T: Clone + Eq + Hash> RefTreeDisjointSet<'a, T> {
             rank.insert(x, 0);
         }
         RefTreeDisjointSet {
-            parent: parent,
-            rank: rank,
+            parent,
+            rank,
         }
     }
 }
@@ -194,13 +196,13 @@ impl<'a, T: Clone + Eq + Hash + Debug> Debug for RefTreeDisjointSet<'a, T> {
                     ve.insert(vec![element]);
                 }
                 Entry::Occupied(mut oe) => {
-                    let mut children = oe.get_mut();
+                    let children = oe.get_mut();
                     children.push(element);
                 }
             }
         }
         for (parent, children) in r {
-            try!(write!(f, "{:?} -> {:?}\n", parent, children));
+            write!(f, "{:?} -> {:?}\n", parent, children)?;
         }
         Ok(())
     }
@@ -208,8 +210,9 @@ impl<'a, T: Clone + Eq + Hash + Debug> Debug for RefTreeDisjointSet<'a, T> {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use util::disjoint_set::RefDisjointSet;
+
+    use super::*;
 
     #[test]
     fn test_ref_tree_disjoint_set() {
@@ -236,7 +239,7 @@ mod test {
             assert!(x.parent[&e] == &e);
         }
         x.union(&v[0], &v[5]);
-        assert!(x.find(&v[0]).cloned() == x.find(&v[5]).cloned());
+        assert_eq!(x.find(&v[0]).cloned(), x.find(&v[5]).cloned());
         assert!(x.parent[&v[0]] == x.parent[&v[1]]);
         assert!(x.parent[&v[1]] == x.parent[&v[5]]);
         assert!(x.parent[&v[5]] == x.parent[&v[6]]);

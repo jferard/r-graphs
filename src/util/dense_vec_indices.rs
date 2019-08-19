@@ -85,7 +85,7 @@ impl DenseVecIndices {
 
     /// Return an iterator on all non free indices.
     /// heap cost : use into_iter
-    pub fn used_indices_iter<'a>(&'a self) -> UsedIndicesIter<'a> {
+    pub fn used_indices_iter(&self) -> UsedIndicesIter {
         self.is_free.iter().enumerate().filter_map(|(e, &free)| match free {
             true => None,
             false => Some(e),
@@ -136,10 +136,10 @@ mod test {
     #[test]
     fn test_dense_vec_indices1() {
         let mut set = DenseVecIndices::new();
-        assert!(set.size() == 0);
+        assert_eq!(set.size(), 0);
         assert!(set.index_is_free(0));
-        assert!(set.index_consume() == 0);
-        assert!(set.size() == 1);
+        assert_eq!(set.index_consume(), 0);
+        assert_eq!(set.size(), 1);
         assert!(set.index_is_used(0));
         assert!(set.index_is_free(1));
     }
@@ -147,22 +147,22 @@ mod test {
     #[test]
     fn test_dense_vec_indices2() {
         let mut set = DenseVecIndices::new();
-        assert!(set.index_consume() == 0);
-        assert!(set.index_consume() == 1);
-        assert!(set.index_consume() == 2);
-        assert!(set.index_consume() == 3);
-        assert!(set.size() == 4);
+        assert_eq!(set.index_consume(), 0);
+        assert_eq!(set.index_consume(), 1);
+        assert_eq!(set.index_consume(), 2);
+        assert_eq!(set.index_consume(), 3);
+        assert_eq!(set.size(), 4);
     }
 
     #[test]
     fn test_dense_vec_indices3() {
         let mut set = DenseVecIndices::new();
-        assert!(set.index_consume() == 0);
-        assert!(set.index_consume() == 1);
-        assert!(set.index_consume() == 2);
-        assert!(set.index_consume() == 3);
+        assert_eq!(set.index_consume(), 0);
+        assert_eq!(set.index_consume(), 1);
+        assert_eq!(set.index_consume(), 2);
+        assert_eq!(set.index_consume(), 3);
         set.free_index(2);
-        assert!(set.size() == 3);
+        assert_eq!(set.size(), 3);
         let v: Vec<usize> = set.used_indices_iter().collect();
         assert!(v == vec![0, 1, 3]);
     }
@@ -170,13 +170,13 @@ mod test {
     #[test]
     fn test_dense_vec_indices4() {
         let mut set = DenseVecIndices::new();
-        assert!(set.index_consume() == 0);
-        assert!(set.index_consume() == 1);
-        assert!(set.index_consume() == 2);
-        assert!(set.index_consume() == 3);
+        assert_eq!(set.index_consume(), 0);
+        assert_eq!(set.index_consume(), 1);
+        assert_eq!(set.index_consume(), 2);
+        assert_eq!(set.index_consume(), 3);
         set.free_index(2);
-        assert!(set.index_consume() == 2);
-        assert!(set.size() == 4);
+        assert_eq!(set.index_consume(), 2);
+        assert_eq!(set.size(), 4);
         let v: Vec<usize> = set.used_indices_iter().collect();
         assert!(v == vec![0, 1, 2, 3]);
     }
@@ -184,14 +184,14 @@ mod test {
     #[test]
     fn test_dense_vec_indices5into_iter() {
         let mut set = DenseVecIndices::new();
-        assert!(set.index_consume() == 0);
-        assert!(set.index_consume() == 1);
-        assert!(set.index_consume() == 2);
-        assert!(set.index_consume() == 3);
+        assert_eq!(set.index_consume(), 0);
+        assert_eq!(set.index_consume(), 1);
+        assert_eq!(set.index_consume(), 2);
+        assert_eq!(set.index_consume(), 3);
         set.free_index(2);
-        assert!(set.index_consume() == 2);
-        assert!(set.index_consume() == 4);
-        assert!(set.size() == 5);
+        assert_eq!(set.index_consume(), 2);
+        assert_eq!(set.index_consume(), 4);
+        assert_eq!(set.size(), 5);
         let v: Vec<usize> = set.into_iter().collect();
         assert!(v == vec![0, 1, 2, 3, 4]);
     }

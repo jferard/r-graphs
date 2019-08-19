@@ -12,7 +12,7 @@ Just learning Rust.
 ## Features
 * Simple graphs, with no decoration (no weigthed, colored,... nodes or edges);
 * Two simple algorithms: DFS (Depth First Search) and BFS (Breadth First Search);
-* A [Graphviz](www.graphviz.org) output, step by step.
+* A [Graphviz](http://www.graphviz.org) output, step by step.
 
 ## Compilation
 *Requires rustc 1.14.0-nightly.*

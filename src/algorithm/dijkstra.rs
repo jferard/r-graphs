@@ -70,13 +70,13 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
         let mut heap = BinaryHeap::new();
         heap.push(MinDistTo { min_dist: 0, to: source });
         DijkstraBrowser {
-            decorated_graph: decorated_graph,
-            heap: heap,
+            decorated_graph,
+            heap,
             black: vec![false; decorated_graph.vertices_max()],
             dist: vec![VOID; decorated_graph.vertices_max()],
             prec: vec![VOID; decorated_graph.vertices_max()],
-            target: target,
-            visitor: visitor,
+            target,
+            visitor,
             phantom_v: PhantomData,
         }
     }

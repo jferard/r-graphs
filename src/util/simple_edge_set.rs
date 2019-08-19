@@ -56,7 +56,7 @@ impl<'a, V, E> EdgeSet<V, E> for SimpleEdgeSet<V, E>
         let mut len = 1;
         let ret;
         match self.edges_by_to_by_from.get_mut(u) {
-            Some(mut edges_by_to) => {
+            Some(edges_by_to) => {
                 match edges_by_to.get(v) {
                     Some(edge) => {
                         ret = edge == e;
@@ -111,14 +111,14 @@ mod test {
     fn test_add_twice() {
         let mut set = SimpleEdgeSet::new();
         assert!(set.add_edge(1, 2, 0));
-        assert!(set.add_edge(1, 2, 0) == false);
-        assert!(set.add_edge(1, 2, 1) == false);
+        assert_eq!(set.add_edge(1, 2, 0), false);
+        assert_eq!(set.add_edge(1, 2, 1), false);
     }
 
     #[test]
     fn test_remove_none() {
         let mut set = SimpleEdgeSet::new();
-        assert!(set.remove_edge(&1, &2, &0) == false);
+        assert_eq!(set.remove_edge(&1, &2, &0), false);
     }
 
     #[test]

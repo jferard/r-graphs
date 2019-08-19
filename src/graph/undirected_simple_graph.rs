@@ -41,7 +41,7 @@ impl<'a> GraphBuilder<'a> for UndirectedSimpleGraphImpl {
     fn new(basic_graph: BasicGraph<SimpleEdgeSet<usize, usize>>) -> UndirectedSimpleGraphImpl {
         UndirectedSimpleGraphImpl {
             reversed: Vec::with_capacity(basic_graph.edges_max()),
-            basic_graph: basic_graph,
+            basic_graph,
         }
     }
 
@@ -70,34 +70,20 @@ impl<'a> GraphBuilder<'a> for UndirectedSimpleGraphImpl {
 
 impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
     type VerticesIterator = UsedIndicesIter<'a>;
-    type EdgesIterator = Box<Iterator<Item=usize> + 'a>; // can't avoid box here
+    type EdgesIterator = Box<dyn Iterator<Item=usize> + 'a>; // can't avoid box here
     type EdgesFromVerticesIterator = EmptyOrOnceIter;
     type AdjacentVerticesIterator = Map<hash_map::Iter<'a, usize, usize>, fn((&usize, &usize)) -> usize>;
     type AdjacentEdgesByVerticesIterator = hash_map::Iter<'a, usize, usize>;
-
-    fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Self::EdgesFromVerticesIterator {
-        match self.basic_graph.get_edges_from_vertices(u, v) {
-            None => {
-                match self.basic_graph.get_edges_from_vertices(v, u) {
-                    None => EmptyOrOnceIter::UEmpty(iter::empty()),
-                    Some(oe) => EmptyOrOnceIter::UOnce(iter::once(*oe)),
-                }
-            }
-            Some(oe) => EmptyOrOnceIter::UOnce(iter::once(*oe)),
-        }
-    }
 
     fn get_vertices_from_edge(&self, e: usize) -> Option<(usize, usize)> {
         self.basic_graph.get_vertices_from_edge(e)
     }
 
-    fn vertices_iter(&'a self) -> Self::VerticesIterator {
-        self.basic_graph.vertices_iter()
-    }
-
-    // We can't avoid using box because of is_main_edge method
-    fn edges_iter(&'a self) -> Self::EdgesIterator {
-        Box::new(self.basic_graph.edges_iter().filter(move |&e| self.is_main_edge(e)))
+    fn get_reversed_edge(&self, e: usize) -> Option<usize> {
+        match self.reversed.get(e) {
+            Some(&e2) => Some(e2),
+            None => None,
+        }
     }
 
     fn vertices_size(&self) -> usize {
@@ -116,20 +102,34 @@ impl<'a> Graph<'a> for UndirectedSimpleGraphImpl {
         self.basic_graph.edges_max()
     }
 
+    fn get_edges_from_vertices_iter(&self, u: usize, v: usize) -> Self::EdgesFromVerticesIterator {
+        match self.basic_graph.get_edges_from_vertices(u, v) {
+            None => {
+                match self.basic_graph.get_edges_from_vertices(v, u) {
+                    None => EmptyOrOnceIter::UEmpty(iter::empty()),
+                    Some(oe) => EmptyOrOnceIter::UOnce(iter::once(*oe)),
+                }
+            }
+            Some(oe) => EmptyOrOnceIter::UOnce(iter::once(*oe)),
+        }
+    }
+
+    fn vertices_iter(&'a self) -> Self::VerticesIterator {
+        self.basic_graph.vertices_iter()
+    }
+
+    // We can't avoid using box because of is_main_edge method
+    fn edges_iter(&'a self) -> Self::EdgesIterator {
+        Box::new(self.basic_graph.edges_iter().filter(move |&e| self.is_main_edge(e)))
+    }
+
+
     fn adjacent_vertices_iter(&'a self, u: usize) -> Self::AdjacentVerticesIterator {
         self.basic_graph.direct_adjacent_vertices_iter(u).map(|(&u, _)| u)
     }
 
-
     fn adjacent_edges_by_vertex_iter(&'a self, u: usize) -> Self::AdjacentEdgesByVerticesIterator {
         self.basic_graph.direct_adjacent_vertices_iter(u) // chain
-    }
-
-    fn get_reversed_edge(&self, e: usize) -> Option<usize> {
-        match self.reversed.get(e) {
-            Some(&e2) => Some(e2),
-            None => None,
-        }
     }
 }
 

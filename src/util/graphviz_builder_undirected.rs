@@ -76,8 +76,8 @@ impl<'a, G, V, E> GraphvizBuilder<'a> for GraphvizBuilderUndirectedImpl<'a, G, V
 
     fn new(graph: &'a G, marked_vertices: &'a Vec<Vec<usize>>) -> GraphvizBuilderUndirectedImpl<'a, G, V, E> {
         GraphvizBuilderUndirectedImpl {
-            marked_vertices: marked_vertices,
-            graph: graph,
+            marked_vertices,
+            graph,
             painter: GraphvizPainter::new(),
             phantom_v: PhantomData,
             phantom_e: PhantomData,

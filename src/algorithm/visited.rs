@@ -30,7 +30,6 @@ impl Visited {
         if u > self.visited.len() + 1 {
             let missing = u - self.visited.len() + 1;
             self.visited.extend(vec!(false; missing));
-
         }
         self.visited[u]
     }

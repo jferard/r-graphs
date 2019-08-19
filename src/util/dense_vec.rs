@@ -48,7 +48,7 @@ impl<'a, T> DenseVec<'a, T> where T: 'a + Clone + PartialEq {
     /// Add a value at a given place. The place must be the next returned by index_consume
     pub fn add_value_at_place(&mut self, element: usize, value: T) {
         let e = self.indices.index_consume();
-        assert! (e == element);
+        assert_eq!(e, element);
         if e == self.values.len() {
             self.values.push(value);
         } else {
@@ -63,7 +63,7 @@ impl<'a, T> DenseVec<'a, T> where T: 'a + Clone + PartialEq {
 
     /// Return an iterator on values
     /// heap cost : use into_iter
-    pub fn values_iter<'b>(&'b self) -> Box<Iterator<Item=T> + 'b> {
+    pub fn values_iter<'b>(&'b self) -> Box<dyn Iterator<Item=T> + 'b> {
         let it = self.indices.used_indices_iter();
         Box::new(it.map(move |e| self.values[e].clone()))
     }
@@ -103,10 +103,10 @@ mod test {
     #[test]
     fn test_dense_ref_vec1() {
         let mut set: DenseVec<usize> = DenseVec::new();
-        assert! (set.size() == 0);
+        assert_eq!(set.size(), 0);
         assert! (!set.has_element(0));
         set.add_value_at_place(0, 10);
-        assert!(set.size() == 1);
+        assert_eq!(set.size(), 1);
         assert! (set.has_element(0));
         assert! (set.has_element(0));
         assert! ( !set.has_element(1));
@@ -119,7 +119,7 @@ mod test {
         set.add_value_at_place(1, 20);
         set.add_value_at_place(2, 30);
         set.add_value_at_place(3, 40);
-        assert! (set.size() == 4);
+        assert_eq!(set.size(), 4);
     }
 
     #[test]
@@ -130,7 +130,7 @@ mod test {
         set.add_value_at_place(2, 30);
         set.add_value_at_place(3, 40);
         set.remove_element(2);
-        assert!(set.size() == 3);
+        assert_eq!(set.size(), 3);
         let v: Vec<usize> = set.values_iter().collect();
         assert!(v == vec![10, 20, 40]);
     }
@@ -144,7 +144,7 @@ mod test {
         set.add_value_at_place(3, 40);
         set.remove_element(2);
         set.add_value_at_place(2, 50);
-        assert! (set.size() == 4);
+        assert_eq!(set.size(), 4);
         let v: Vec<usize> = set.values_iter().collect();
         assert! (v == vec![10, 20, 50, 40]);
     }

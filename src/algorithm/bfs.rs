@@ -38,8 +38,8 @@ impl<'a, G, V> BFSBrowser<'a, G, V>
 {
     pub fn new(g: &'a G, visitor: &'a mut V) -> BFSBrowser<'a, G, V> {
         BFSBrowser {
-            g: g,
-            visitor: visitor,
+            g,
+            visitor,
             visited: Visited::new(g.vertices_max()),
             queue: VecDeque::new(),
         }

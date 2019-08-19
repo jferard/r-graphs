@@ -88,11 +88,11 @@ impl<ES> BasicGraph<ES>
         }
     }
 
-    pub fn vertices_iter<'a>(&'a self) -> UsedIndicesIter<'a> {
+    pub fn vertices_iter(&self) -> UsedIndicesIter {
         self.vertices.used_indices_iter()
     }
 
-    pub fn edges_iter<'a>(&'a self) -> UsedIndicesIter<'a> {
+    pub fn edges_iter(&self) -> UsedIndicesIter {
         self.edges.used_indices_iter()
     }
 

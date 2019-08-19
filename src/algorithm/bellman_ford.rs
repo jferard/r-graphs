@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 /// *****************************************************************************
 /// R-Graphs - A simple graph library for Rust
 /// Copyright (C) 2016-2017 J. Férard <https://github.com/jferard>
@@ -18,15 +19,13 @@
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
 
-use std::collections::BinaryHeap;
 use std::fmt::Debug;
 use std::marker::PhantomData;
-use std::cmp::Ordering;
 
+use algorithm::visitor::Visitor;
+use graph::DecoratedGraph;
 use graph::Graph;
 use graph::VOID;
-use graph::DecoratedGraph;
-use algorithm::visitor::Visitor;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 struct MinDistTo {
@@ -55,7 +54,7 @@ pub struct BellmanFordBrowser<'a, G, V, V2>
     source: usize,
     target: usize,
     dist: Vec<usize>,
-    prec: Vec<usize>,
+    previous: Vec<usize>,
     negative_cycle: bool,
     visitor: &'a mut V2,
     phantom_v: PhantomData<V>,
@@ -71,13 +70,13 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
         dist[source] = 0;
 
         BellmanFordBrowser {
-            decorated_graph: decorated_graph,
-            source: source,
-            target: target,
-            dist: dist,
-            prec: vec![VOID; decorated_graph.vertices_max()],
+            decorated_graph,
+            source,
+            target,
+            dist,
+            previous: vec![VOID; decorated_graph.vertices_max()],
             negative_cycle: false,
-            visitor: visitor,
+            visitor,
             phantom_v: PhantomData,
         }
     }
@@ -85,10 +84,10 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
     pub fn browse(&mut self) {
         self.dist[self.source] = 0;
         for i in 0..self.decorated_graph.edges_size() - 1 {
-            println!("étape {}", i);
+            println!("step {}", i);
             for u in self.decorated_graph.vertices_iter() {
                 let dist_u = self.dist[u];
-                println!("sommet {}, {}", u, dist_u);
+                println!("vertex {}, {}", u, dist_u);
                 if dist_u == VOID { // only connected vertices are explored
                     continue;
                 }
@@ -111,16 +110,16 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
         let mut changed = false;
         self.visitor.visit(node, None);
         for neighbor in self.decorated_graph.adjacent_vertices_iter(node) {
-            for (_, oweight) in self.decorated_graph.edges_values_iter(node, neighbor) {
-                let weight = match oweight {
+            for (_, o_weight) in self.decorated_graph.edges_values_iter(node, neighbor) {
+                let weight = match o_weight {
                     Some(w) => *w,
                     None => 0
                 };
-                println!("voisin {}, {}", neighbor, weight);
+                println!("neighbor {}, {}", neighbor, weight);
                 let dist_neighbor = dist_node + weight;
                 if dist_neighbor < self.dist[neighbor] {
                     self.dist[neighbor] = dist_neighbor;
-                    self.prec[neighbor] = node;
+                    self.previous[neighbor] = node;
                     changed = true;
                 }
             }
@@ -131,10 +130,10 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
     pub fn path(&self, source: usize, dest: usize) -> Vec<usize> {
         let mut vec = Vec::new();
         vec.insert(0, dest);
-        let mut i = self.prec[dest];
+        let mut i = self.previous[dest];
         while i != source {
             vec.insert(0, i);
-            i = self.prec[i];
+            i = self.previous[i];
         }
         vec.insert(0, source);
         vec
@@ -147,15 +146,15 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use graph::basic_graph::BasicGraph;
     use graph::DirectedSimpleGraphImpl;
-    use graph::GraphBuilder;
     use graph::examples::decorated_graph1;
+    use graph::GraphBuilder;
+    use util::GraphvizBuilder;
     use util::GraphvizBuilderDirectedImpl;
     use util::GraphvizWriter;
-    use util::GraphvizBuilder;
 
+    use super::*;
 
     #[test]
     fn test_bellman_ford() {
