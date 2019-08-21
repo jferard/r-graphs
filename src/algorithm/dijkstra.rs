@@ -26,7 +26,7 @@ use std::marker::PhantomData;
 use algorithm::visitor::Visitor;
 use graph::DecoratedGraph;
 use graph::Graph;
-use algorithm::common::path;
+use algorithm::single_source_shortest_paths::SingleSourceShortestPathsImpl;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 struct MinDistTo {
@@ -83,7 +83,7 @@ impl<'a, G, V, W> DijkstraBrowser<'a, G, V, W>
         }
     }
 
-    pub fn browse(&mut self) {
+    pub fn browse(&mut self) -> SingleSourceShortestPathsImpl {
         loop {
             match self.heap.pop() {
                 None => {
@@ -97,6 +97,7 @@ impl<'a, G, V, W> DijkstraBrowser<'a, G, V, W>
                 Some(MinDistTo { min_dist: dist_cur_node, to: cur_node }) => { self.process(dist_cur_node, cur_node); }
             }
         }
+        SingleSourceShortestPathsImpl::new(self.source, &self.dist, &self.previous, false)
     }
 
     fn process(&mut self, dist_node: usize, node: usize) {
@@ -117,10 +118,6 @@ impl<'a, G, V, W> DijkstraBrowser<'a, G, V, W>
             }
         }
     }
-
-    pub fn path(&self) -> Vec<usize> {
-        path(&self.previous, self.source, self.target)
-    }
 }
 
 #[cfg(test)]
@@ -134,6 +131,7 @@ mod test {
     use util::GraphvizWriter;
 
     use super::*;
+    use algorithm::single_source_shortest_paths::SingleSourceShortestPaths;
 
     #[test]
     fn test_dijkstra() {
@@ -148,8 +146,8 @@ mod test {
             let mut path = Vec::new();
             {
                 let mut b = DijkstraBrowser::new(&dg, source, dest, &mut marked_vertices);
-                b.browse();
-                path.push(b.path());
+                let x = b.browse();
+                path.push(x.path(5));
             }
             {
                 let h = GraphvizBuilderDirectedImpl::new(&dg, &marked_vertices);

@@ -22,6 +22,7 @@ use std::marker::PhantomData;
 /// ***************************************************************************
 
 use graph::{DecoratedGraph, Graph};
+use algorithm::all_pairs_shortest_paths::AllPairsShortestPathsImpl;
 
 pub struct FloydWarshallBrowser<'a, G, V>
     where G: 'a + Graph<'a> + DecoratedGraph<'a, V, &'a usize>,
@@ -50,7 +51,7 @@ impl<'a, G, V> FloydWarshallBrowser<'a, G, V>
         }
     }
 
-    pub fn browse(&mut self) {
+    pub fn browse(&mut self) -> AllPairsShortestPathsImpl {
         for e in self.decorated_graph.edges_iter() {
             let (u, v) = self.decorated_graph.get_vertices_from_edge(e).expect("");
             let w = self.decorated_graph.edges_values_iter(u, v).map(|(_, o_weight)| *o_weight.unwrap_or(&0)).min().expect("Should not happen");
@@ -89,25 +90,7 @@ impl<'a, G, V> FloydWarshallBrowser<'a, G, V>
                 }
             }
         }
-    }
-
-    pub fn dist(&self, source: usize, target: usize) -> Option<usize> {
-        self.dist[source * self.v_count + target]
-    }
-
-    pub fn path(&self, source: usize, target: usize) -> Vec<usize> {
-        match self.next[source * self.v_count + target] {
-            None => vec!(),
-            _ => {
-                let mut u = source;
-                let mut path = vec!(u);
-                while u != target {
-                    u = self.next[u * self.v_count + target].expect("");
-                    path.push(u);
-                }
-                path
-            }
-        }
+        AllPairsShortestPathsImpl::new(self.v_count, &self.dist, &self.next, false)
     }
 }
 
@@ -122,6 +105,7 @@ mod test {
     use util::GraphvizWriter;
 
     use super::*;
+    use algorithm::all_pairs_shortest_paths::AllPairsShortestPaths;
 
     #[test]
     fn test_floyd_warshall() {
@@ -131,46 +115,46 @@ mod test {
             let mut path = Vec::new();
             {
                 let mut b = FloydWarshallBrowser::new(&dg);
-                b.browse();
-                assert_eq!(vec!(0, 2, 3), b.path(0, 3));
-                assert_eq!(vec!(0, 2, 3, 4, 5), b.path(0, 5));
+                let x = b.browse();
+                assert_eq!(vec!(0, 2, 3), x.path(0, 3));
+                assert_eq!(vec!(0, 2, 3, 4, 5), x.path(0, 5));
 
-                assert_eq!(Some(0), b.dist(0, 0));
+                assert_eq!(Some(0), x.dist(0, 0));
 
-                assert_eq!(Some(1), b.dist(0, 1));
-                assert_eq!(Some(0), b.dist(1, 1));
+                assert_eq!(Some(1), x.dist(0, 1));
+                assert_eq!(Some(0), x.dist(1, 1));
 
-                assert_eq!(Some(3), b.dist(0, 2));
-                assert_eq!(None, b.dist(1, 2));
-                assert_eq!(Some(0), b.dist(2, 2));
+                assert_eq!(Some(3), x.dist(0, 2));
+                assert_eq!(None, x.dist(1, 2));
+                assert_eq!(Some(0), x.dist(2, 2));
 
-                assert_eq!(Some(4), b.dist(0, 3));
-                assert_eq!(None, b.dist(1, 3));
-                assert_eq!(Some(1), b.dist(2, 3));
-                assert_eq!(Some(0), b.dist(3, 3));
+                assert_eq!(Some(4), x.dist(0, 3));
+                assert_eq!(None, x.dist(1, 3));
+                assert_eq!(Some(1), x.dist(2, 3));
+                assert_eq!(Some(0), x.dist(3, 3));
 
-                assert_eq!(Some(5), b.dist(0, 4));
-                assert_eq!(None, b.dist(1, 4));
-                assert_eq!(Some(2), b.dist(2, 4));
-                assert_eq!(Some(1), b.dist(3, 4));
-                assert_eq!(Some(0), b.dist(4, 4));
+                assert_eq!(Some(5), x.dist(0, 4));
+                assert_eq!(None, x.dist(1, 4));
+                assert_eq!(Some(2), x.dist(2, 4));
+                assert_eq!(Some(1), x.dist(3, 4));
+                assert_eq!(Some(0), x.dist(4, 4));
 
-                assert_eq!(Some(12), b.dist(0, 5));
-                assert_eq!(Some(12), b.dist(1, 5));
-                assert_eq!(Some(9), b.dist(2, 5));
-                assert_eq!(Some(8), b.dist(3, 5));
-                assert_eq!(Some(7), b.dist(4, 5));
-                assert_eq!(Some(0), b.dist(5, 5));
+                assert_eq!(Some(12), x.dist(0, 5));
+                assert_eq!(Some(12), x.dist(1, 5));
+                assert_eq!(Some(9), x.dist(2, 5));
+                assert_eq!(Some(8), x.dist(3, 5));
+                assert_eq!(Some(7), x.dist(4, 5));
+                assert_eq!(Some(0), x.dist(5, 5));
 
-                assert_eq!(Some(9), b.dist(0, 6));
-                assert_eq!(None, b.dist(1, 6));
-                assert_eq!(Some(6), b.dist(2, 6));
-                assert_eq!(Some(5), b.dist(3, 6));
-                assert_eq!(Some(4), b.dist(4, 6));
-                assert_eq!(None, b.dist(5, 6));
-                assert_eq!(Some(0), b.dist(6, 6));
+                assert_eq!(Some(9), x.dist(0, 6));
+                assert_eq!(None, x.dist(1, 6));
+                assert_eq!(Some(6), x.dist(2, 6));
+                assert_eq!(Some(5), x.dist(3, 6));
+                assert_eq!(Some(4), x.dist(4, 6));
+                assert_eq!(None, x.dist(5, 6));
+                assert_eq!(Some(0), x.dist(6, 6));
 
-                path.push(b.path(0, 5));
+                path.push(x.path(0, 5));
             }
             {
                 let h = GraphvizBuilderDirectedImpl::new(&dg, &path);

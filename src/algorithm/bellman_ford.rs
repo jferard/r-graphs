@@ -25,7 +25,7 @@ use std::marker::PhantomData;
 use algorithm::visitor::Visitor;
 use graph::DecoratedGraph;
 use graph::Graph;
-use algorithm::common::path;
+use algorithm::single_source_shortest_paths::SingleSourceShortestPathsImpl;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 struct MinDistTo {
@@ -79,7 +79,7 @@ impl<'a, G, V, W> BellmanFordBrowser<'a, G, V, W>
         }
     }
 
-    pub fn browse(&mut self) {
+    pub fn browse(&mut self) -> SingleSourceShortestPathsImpl {
         self.dist[self.source] = Some(0);
         for _ in 0..self.decorated_graph.edges_size() - 1 {
             for u in self.decorated_graph.vertices_iter() {
@@ -96,9 +96,10 @@ impl<'a, G, V, W> BellmanFordBrowser<'a, G, V, W>
                 }
             }
         }
+        SingleSourceShortestPathsImpl::new(self.source, &self.dist, &self.previous, self.negative_cycle)
     }
 
-    pub fn process(&mut self, dist_node: usize, node: usize) -> bool {
+    fn process(&mut self, dist_node: usize, node: usize) -> bool {
         let mut changed = false;
         self.visitor.visit(node, None);
         for neighbor in self.decorated_graph.adjacent_vertices_iter(node) {
@@ -117,18 +118,6 @@ impl<'a, G, V, W> BellmanFordBrowser<'a, G, V, W>
         }
         changed
     }
-
-    pub fn dist(&self, target: usize) -> Option<usize> {
-        self.dist[target]
-    }
-
-    pub fn path(&self, target: usize) -> Vec<usize> {
-        path(&self.previous, self.source, target)
-    }
-
-    pub fn has_negative_cycle(&self) -> bool {
-        self.negative_cycle
-    }
 }
 
 #[cfg(test)]
@@ -142,6 +131,7 @@ mod test {
     use util::GraphvizWriter;
 
     use super::*;
+    use algorithm::single_source_shortest_paths::SingleSourceShortestPaths;
 
     #[test]
     fn test_bellman_ford() {
@@ -151,11 +141,11 @@ mod test {
             let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
             {
                 let mut b = BellmanFordBrowser::new(&dg, 0, &mut marked_vertices);
-                b.browse();
-                assert_eq!(Some(4), b.dist(3));
-                assert_eq!(vec!(0, 2, 3), b.path(3));
-                assert_eq!(Some(12), b.dist(5));
-                assert_eq!(vec!(0, 2, 3, 4, 5), b.path(5));
+                let x = b.browse();
+                assert_eq!(Some(4), x.dist(3));
+                assert_eq!(vec!(0, 2, 3), x.path(3));
+                assert_eq!(Some(12), x.dist(5));
+                assert_eq!(vec!(0, 2, 3, 4, 5), x.path(5));
             }
         }
     }
@@ -173,8 +163,8 @@ mod test {
             let mut path = Vec::new();
             {
                 let mut b = BellmanFordBrowser::new(&dg, source, &mut marked_vertices);
-                b.browse();
-                path.push(b.path(dest));
+                let x = b.browse();
+                path.push(x.path(dest));
             }
             {
                 let h = GraphvizBuilderDirectedImpl::new(&dg, &marked_vertices);

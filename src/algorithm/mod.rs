@@ -24,4 +24,5 @@ pub mod bfs;
 pub mod dijkstra;
 pub mod bellman_ford;
 pub mod floyd_warshall;
-mod common;
+mod single_source_shortest_paths;
+mod all_pairs_shortest_paths;
