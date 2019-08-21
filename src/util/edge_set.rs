@@ -1,6 +1,6 @@
 /// *****************************************************************************
 /// R-Graphs - A simple graph library for Rust
-/// Copyright (C) 2016-2017 J. Férard <https://github.com/jferard>
+/// Copyright (C) 2016-2019 J. Férard <https://github.com/jferard>
 ///
 /// This file is part of R-Graphs.
 ///
@@ -28,7 +28,7 @@ pub trait EdgeSet<V, E>
     where V: Eq + Hash,
           E: Eq + Hash
 {
-    type S; // Hashet<E> or E
+    type S; // Hashset<E> or E
 
     /// create a new EdgeSet
     fn new() -> Self;

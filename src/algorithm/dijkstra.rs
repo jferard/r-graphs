@@ -1,6 +1,6 @@
 /// *****************************************************************************
 /// R-Graphs - A simple graph library for Rust
-/// Copyright (C) 2016-2017 J. Férard <https://github.com/jferard>
+/// Copyright (C) 2016-2019 J. Férard <https://github.com/jferard>
 ///
 /// This file is part of R-Graphs.
 ///
@@ -26,6 +26,7 @@ use std::marker::PhantomData;
 use algorithm::visitor::Visitor;
 use graph::DecoratedGraph;
 use graph::Graph;
+use algorithm::common::path;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 struct MinDistTo {
@@ -45,27 +46,28 @@ impl PartialOrd for MinDistTo {
     }
 }
 
-pub struct DijkstraBrowser<'a, G, V, V2>
+pub struct DijkstraBrowser<'a, G, V, W>
     where G: 'a + Graph<'a> + DecoratedGraph<'a, V, &'a usize>,
           V: 'a + PartialEq + Clone + Debug,
-          V2: 'a + Visitor
+          W: 'a + Visitor
 {
     decorated_graph: &'a G,
     heap: BinaryHeap<MinDistTo>,
     black: Vec<bool>,
     dist: Vec<Option<usize>>,
     previous: Vec<Option<usize>>,
+    source: usize,
     target: usize,
-    visitor: &'a mut V2,
+    visitor: &'a mut W,
     phantom_v: PhantomData<V>,
 }
 
-impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
+impl<'a, G, V, W> DijkstraBrowser<'a, G, V, W>
     where G: 'a + Graph<'a> + DecoratedGraph<'a, V, &'a usize>,
           V: 'a + PartialEq + Clone + Debug,
-          V2: 'a + Visitor
+          W: 'a + Visitor
 {
-    pub fn new(decorated_graph: &'a G, source: usize, target: usize, visitor: &'a mut V2) -> DijkstraBrowser<'a, G, V, V2> {
+    pub fn new(decorated_graph: &'a G, source: usize, target: usize, visitor: &'a mut W) -> DijkstraBrowser<'a, G, V, W> {
         let mut heap = BinaryHeap::new();
         heap.push(MinDistTo { min_dist: 0, to: source });
         DijkstraBrowser {
@@ -74,6 +76,7 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
             black: vec![false; decorated_graph.vertices_max()],
             dist: vec![None; decorated_graph.vertices_max()],
             previous: vec![None; decorated_graph.vertices_max()],
+            source,
             target,
             visitor,
             phantom_v: PhantomData,
@@ -96,15 +99,12 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
         }
     }
 
-    pub fn process(&mut self, dist_node: usize, node: usize) {
+    fn process(&mut self, dist_node: usize, node: usize) {
         self.visitor.visit(node, None);
         self.black[node] = true;
         for neighbor in self.decorated_graph.adjacent_vertices_iter(node) {
             for (_, o_weight) in self.decorated_graph.edges_values_iter(node, neighbor) {
-                let weight = match o_weight {
-                    Some(w) => *w,
-                    None => 0
-                };
+                let weight = *o_weight.unwrap_or(&0);
                 let dist_neighbor = dist_node + weight;
                 if let Some(d) = self.dist[neighbor] {
                     if d <= dist_neighbor { // not interesting
@@ -118,16 +118,8 @@ impl<'a, G, V, V2> DijkstraBrowser<'a, G, V, V2>
         }
     }
 
-    pub fn path(&self, source: usize, dest: usize) -> Vec<usize> {
-        let mut vec = Vec::new();
-        vec.insert(0, dest);
-        let mut i = self.previous[dest].expect("should have a previous node");
-        while i != source {
-            vec.insert(0, i);
-            i = self.previous[i].expect("should have a previous");
-        }
-        vec.insert(0, source);
-        vec
+    pub fn path(&self) -> Vec<usize> {
+        path(&self.previous, self.source, self.target)
     }
 }
 
@@ -157,17 +149,17 @@ mod test {
             {
                 let mut b = DijkstraBrowser::new(&dg, source, dest, &mut marked_vertices);
                 b.browse();
-                path.push(b.path(source, dest));
+                path.push(b.path());
             }
             {
                 let h = GraphvizBuilderDirectedImpl::new(&dg, &marked_vertices);
                 let gw = GraphvizWriter::new(&h);
-                gw.output("gv_output/dijsktra.dot");
+                gw.output("gv_output/dijsktra_visit.dot");
             }
             {
                 let h = GraphvizBuilderDirectedImpl::new(&dg, &path);
                 let gw = GraphvizWriter::new(&h);
-                gw.output("gv_output/dijsktra2.dot");
+                gw.output("gv_output/dijsktra_path.dot");
             }
         }
     }

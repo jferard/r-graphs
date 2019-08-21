@@ -1,6 +1,6 @@
 /// *****************************************************************************
 /// R-Graphs - A simple graph library for Rust
-/// Copyright (C) 2016-2017 J. Férard <https://github.com/jferard>
+/// Copyright (C) 2016-2019 J. Férard <https://github.com/jferard>
 ///
 /// This file is part of R-Graphs.
 ///
@@ -25,6 +25,7 @@ use std::marker::PhantomData;
 use algorithm::visitor::Visitor;
 use graph::DecoratedGraph;
 use graph::Graph;
+use algorithm::common::path;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 struct MinDistTo {
@@ -44,26 +45,26 @@ impl PartialOrd for MinDistTo {
     }
 }
 
-pub struct BellmanFordBrowser<'a, G, V, V2>
+pub struct BellmanFordBrowser<'a, G, V, W>
     where G: 'a + Graph<'a> + DecoratedGraph<'a, V, &'a usize>,
           V: 'a + PartialEq + Clone + Debug,
-          V2: 'a + Visitor
+          W: 'a + Visitor
 {
     decorated_graph: &'a G,
     source: usize,
     dist: Vec<Option<usize>>,
     previous: Vec<Option<usize>>,
     negative_cycle: bool,
-    visitor: &'a mut V2,
+    visitor: &'a mut W,
     phantom_v: PhantomData<V>,
 }
 
-impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
+impl<'a, G, V, W> BellmanFordBrowser<'a, G, V, W>
     where G: 'a + Graph<'a> + DecoratedGraph<'a, V, &'a usize>,
           V: 'a + PartialEq + Clone + Debug,
-          V2: 'a + Visitor
+          W: 'a + Visitor
 {
-    pub fn new(decorated_graph: &'a G, source: usize, visitor: &'a mut V2) -> BellmanFordBrowser<'a, G, V, V2> {
+    pub fn new(decorated_graph: &'a G, source: usize, visitor: &'a mut W) -> BellmanFordBrowser<'a, G, V, W> {
         let mut dist = vec![None; decorated_graph.vertices_max()];
         dist[source] = Some(0);
 
@@ -102,10 +103,7 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
         self.visitor.visit(node, None);
         for neighbor in self.decorated_graph.adjacent_vertices_iter(node) {
             for (_, o_weight) in self.decorated_graph.edges_values_iter(node, neighbor) {
-                let weight = match o_weight {
-                    Some(w) => *w,
-                    None => 0
-                };
+                let weight = *o_weight.unwrap_or(&0);
                 let dist_neighbor = dist_node + weight;
                 if let Some(d) = self.dist[neighbor] {
                     if d <= dist_neighbor { // not interesting
@@ -120,16 +118,12 @@ impl<'a, G, V, V2> BellmanFordBrowser<'a, G, V, V2>
         changed
     }
 
-    pub fn path(&self, source: usize, dest: usize) -> Vec<usize> {
-        let mut vec = Vec::new();
-        vec.insert(0, dest);
-        let mut i = self.previous[dest].expect("should have a previous node");
-        while i != source {
-            vec.insert(0, i);
-            i = self.previous[i].expect("should have a previous node");
-        }
-        vec.insert(0, source);
-        vec
+    pub fn dist(&self, target: usize) -> Option<usize> {
+        self.dist[target]
+    }
+
+    pub fn path(&self, target: usize) -> Vec<usize> {
+        path(&self.previous, self.source, target)
     }
 
     pub fn has_negative_cycle(&self) -> bool {
@@ -151,6 +145,23 @@ mod test {
 
     #[test]
     fn test_bellman_ford() {
+        let mut g = DirectedSimpleGraphImpl::new(BasicGraph::new());
+        {
+            let dg = decorated_graph1(&mut g);
+            let mut marked_vertices: Vec<Vec<usize>> = Vec::new();
+            {
+                let mut b = BellmanFordBrowser::new(&dg, 0, &mut marked_vertices);
+                b.browse();
+                assert_eq!(Some(4), b.dist(3));
+                assert_eq!(vec!(0, 2, 3), b.path(3));
+                assert_eq!(Some(12), b.dist(5));
+                assert_eq!(vec!(0, 2, 3, 4, 5), b.path(5));
+            }
+        }
+    }
+
+    #[test]
+    fn graph_bellman_ford() {
         bellman_ford(0, 5);
     }
 
@@ -163,17 +174,17 @@ mod test {
             {
                 let mut b = BellmanFordBrowser::new(&dg, source, &mut marked_vertices);
                 b.browse();
-                path.push(b.path(source, dest));
+                path.push(b.path(dest));
             }
             {
                 let h = GraphvizBuilderDirectedImpl::new(&dg, &marked_vertices);
                 let gw = GraphvizWriter::new(&h);
-                gw.output("gv_output/bellman.dot");
+                gw.output("gv_output/bellman_visit.dot");
             }
             {
                 let h = GraphvizBuilderDirectedImpl::new(&dg, &path);
                 let gw = GraphvizWriter::new(&h);
-                gw.output("gv_output/bellman2.dot");
+                gw.output("gv_output/bellman_path.dot");
             }
         }
     }

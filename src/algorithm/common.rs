@@ -17,20 +17,15 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
-use graph::graph::Graph;
 
-pub trait DirectedGraph<'a>: Graph<'a> {}
-
-pub trait UndirectedGraph<'a>: Graph<'a> {}
-
-pub trait SimpleGraph<'a>: Graph<'a> {}
-
-pub trait MultiGraph<'a>: Graph<'a> {}
-
-pub trait DirectedSimpleGraph<'a>: DirectedGraph<'a> + SimpleGraph<'a> {}
-
-pub trait DirectedMultiGraph<'a>: DirectedGraph<'a> + MultiGraph<'a> {}
-
-pub trait UndirectedSimpleGraph<'a>: UndirectedGraph<'a> + SimpleGraph<'a> {}
-
-pub trait UndirectedMultiGraph<'a>: UndirectedGraph<'a> + MultiGraph<'a> {}
+pub fn path(previous: &Vec<Option<usize>>, source: usize, dest: usize) -> Vec<usize> {
+    let mut vec = Vec::new();
+    vec.insert(0, dest);
+    let mut i = previous[dest].expect("should have a previous node");
+    while i != source {
+        vec.insert(0, i);
+        i = previous[i].expect("should have a previous node");
+    }
+    vec.insert(0, source);
+    vec
+}

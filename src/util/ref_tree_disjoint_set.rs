@@ -1,7 +1,7 @@
 use std::collections::hash_map::Entry;
 /// *****************************************************************************
 /// R-Graphs - A simple graph library for Rust
-/// Copyright (C) 2016-2017 J. Férard <https://github.com/jferard>
+/// Copyright (C) 2016-2019 J. Férard <https://github.com/jferard>
 ///
 /// This file is part of R-Graphs.
 ///

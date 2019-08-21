@@ -1,6 +1,7 @@
+
 /// *****************************************************************************
 /// R-Graphs - A simple graph library for Rust
-/// Copyright (C) 2016-2017 J. Férard <https://github.com/jferard>
+/// Copyright (C) 2016-2019 J. Férard <https://github.com/jferard>
 ///
 /// This file is part of R-Graphs.
 ///
@@ -17,13 +18,15 @@
 /// You should have received a copy of the GNU General Public License
 /// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /// ***************************************************************************
+use std::fmt::Debug;
+
 use util::DenseVec;
+
+use graph::DecoratedGraph;
+use graph::DirectedGraph;
 use graph::Graph;
 use graph::GraphBuilder;
-use graph::DirectedGraph;
 use graph::UndirectedGraph;
-use graph::DecoratedGraph;
-use std::fmt::Debug;
 
 /// TODO
 pub struct GraphDecorator<'a, G, V, E>
@@ -64,6 +67,50 @@ impl<'a, G, V, E> GraphDecorator<'a, G, V, E>
         }
     }
 }
+
+/*
+pub struct EdgesIteratorImpl<'a, G>
+    where G: Graph<'a>,
+{
+    g: &'a G,
+    vertices_iter: G::VerticesIterator,
+    edges_iter: G::AdjacentEdgesByVerticesIterator,
+}
+
+impl<'a, G> EdgesIteratorImpl<'a, G>
+    where G: Graph<'a>,
+{
+    fn new(g: &G) -> G::EdgesIterator {
+        EdgesIteratorImpl {
+            g,
+            vertices_iter: iter::empty::<usize>(),
+            edges_iter: iter::empty::<usize>(),
+        }
+    }
+}
+
+impl<'a, G> Iterator for EdgesIteratorImpl<'a, G>
+    where G: Graph<'a>,
+{
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            match self.edges_iter.next() {
+                None => {
+                    match self.vertices_iter.next() {
+                        None => { return None; }
+                        Some(u) => {
+                            self.edges_iter = self.g.adjacent_edges_by_vertex_iter(u);
+                        }
+                    }
+                }
+                e => { return e; }
+            }
+        }
+    }
+}
+*/
 
 impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
     where G: Graph<'a>,
@@ -108,7 +155,7 @@ impl<'a, G, V, E> Graph<'a> for GraphDecorator<'a, G, V, E>
     }
 
     fn edges_iter(&'a self) -> Self::EdgesIterator {
-        unimplemented!()
+        self.graph.edges_iter()
     }
 
     fn adjacent_vertices_iter(&'a self, u: usize) -> Self::AdjacentVerticesIterator {
@@ -148,13 +195,14 @@ impl<'a, G, V, E> UndirectedGraph<'a> for GraphDecorator<'a, G, V, E> where G: U
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use graph::basic_graph::BasicGraph;
+    use graph::examples::decorated_graph1;
     use graph::undirected_simple_graph::UndirectedSimpleGraphImpl;
     use util::GraphvizBuilder;
-    use util::GraphvizWriter;
     use util::GraphvizBuilderUndirectedImpl;
-    use graph::examples::decorated_graph1;
+    use util::GraphvizWriter;
+
+    use super::*;
 
     #[test]
     fn test_graphviz() {
@@ -168,11 +216,11 @@ mod test {
         }
 
 
-        // let mut gh = GraphvizHelperImpl::new(&g);
-        // gh.output("gv_output/graph1.dot");
-        // gh.mark(vec![1, 2]);
-        // gh.mark(vec![5, 6]);
-        // gh.output("gv_output/graph2.dot");
-        //
+// let mut gh = GraphvizHelperImpl::new(&g);
+// gh.output("gv_output/graph1.dot");
+// gh.mark(vec![1, 2]);
+// gh.mark(vec![5, 6]);
+// gh.output("gv_output/graph2.dot");
+//
     }
 }
